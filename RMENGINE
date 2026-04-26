@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>R&M Engine v2</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0c10; --surface:#111318; --surface2:#181c24; --surface3:#1e2330;
+  --border:#1e2330; --border2:#252d3d;
+  --accent:#f0a500; --accent2:#e05c1a;
+  --green:#22c55e; --blue:#3b82f6; --red:#ef4444;
+  --purple:#a855f7; --cyan:#06b6d4; --pink:#ec4899;
+  --text:#e2e8f0; --muted:#64748b; --muted2:#94a3b8;
+  --font:'Sora',sans-serif; --mono:'IBM Plex Mono',monospace;
+  --radius:12px; --radius-lg:16px; --radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+
+/* ══════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════ */
+#screen-login{
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(240,165,0,.08),transparent),
+             radial-gradient(ellipse 60% 40% at 80% 100%,rgba(59,130,246,.06),transparent),
+             var(--bg);
+}
+.login-wrap{width:100%;max-width:440px;padding:24px}
+.login-logo{text-align:center;margin-bottom:36px}
+.login-logo h1{font-size:28px;font-weight:700;letter-spacing:-.5px}
+.login-logo h1 span{color:var(--accent)}
+.login-logo p{font-size:12px;color:var(--muted);font-family:var(--mono);margin-top:6px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.role-card{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:16px;cursor:pointer;transition:all .2s;text-align:center;
+}
+.role-card:hover{border-color:var(--accent);background:rgba(240,165,0,.05)}
+.role-card.selected{border-color:var(--accent);background:rgba(240,165,0,.1)}
+.role-card .role-icon{font-size:26px;margin-bottom:8px}
+.role-card .role-name{font-size:13px;font-weight:600}
+.role-card .role-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.login-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px}
+.login-form h2{font-size:16px;font-weight:600;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-family:var(--font);font-size:14px;padding:10px 12px;outline:none;transition:border-color .2s;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group input.err,.form-group select.err{border-color:var(--red)}
+.err-msg{font-size:11px;color:var(--red);margin-top:4px;display:none}
+.err-msg.show{display:block}
+.login-btn{width:100%;padding:12px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#000;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;transition:all .2s}
+.login-btn:hover{background:#fbbf24}
+
+/* ══════════════════════════════════
+   APP LAYOUT
+══════════════════════════════════ */
+#screen-app{flex-direction:column}
+.app-shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{
+  width:220px;background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;transition:width .3s;
+}
+.sidebar.collapsed{width:60px}
+.main-area{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{
+  padding:14px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;background:var(--surface);
+  position:sticky;top:0;z-index:20;
+}
+.topbar-title{flex:1}
+.topbar-title h1{font-size:17px;font-weight:600}
+.topbar-title p{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:1px}
+.topbar-user{display:flex;align-items:center;gap:10px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:rgba(240,165,0,.2);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px}
+.user-name{font-size:13px;font-weight:500}
+.user-role{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.content{padding:22px 24px;flex:1}
+
+/* SIDEBAR NAV */
+.logo{padding:18px 14px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-icon{font-size:22px;flex-shrink:0}
+.logo-text{font-weight:700;font-size:14px;white-space:nowrap}
+.logo-text span{color:var(--accent)}
+.nav{padding:10px 8px;flex:1;overflow-y:auto}
+.nav-label{font-size:10px;color:var(--muted);font-family:var(--mono);padding:8px 8px 4px;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;overflow:hidden}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);
+  cursor:pointer;font-size:13px;color:var(--muted);transition:all .2s;margin-bottom:1px;white-space:nowrap;
+}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(240,165,0,.12);color:var(--accent)}
+.nav-item .ni{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;font-family:var(--mono);flex-shrink:0}
+.nav-badge.amber{background:var(--accent);color:#000}
+.nav-badge.blue{background:var(--blue)}
+.sidebar-footer{padding:12px 8px;border-top:1px solid var(--border)}
+
+/* ══════════════════════════════════
+   GENERIC COMPONENTS
+══════════════════════════════════ */
+.btn{padding:8px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#000}.btn-primary:hover{background:#fbbf24}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-green{background:var(--green);color:#000}.btn-green:hover{background:#16a34a}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#dc2626}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#2563eb}
+.btn-purple{background:var(--purple);color:#fff}.btn-purple:hover{background:#9333ea}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-xs{padding:3px 9px;font-size:11px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--mono)}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.b-open{background:rgba(59,130,246,.15);color:var(--blue)}
+.b-progress{background:rgba(168,85,247,.15);color:var(--purple)}
+.b-pending{background:rgba(240,165,0,.15);color:var(--accent)}
+.b-approved{background:rgba(34,197,94,.15);color:var(--green)}
+.b-closed{background:rgba(100,116,139,.15);color:var(--muted)}
+.b-hold{background:rgba(239,68,68,.15);color:var(--red)}
+.b-accepted{background:rgba(6,182,212,.15);color:var(--cyan)}
+
+.p-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
+.p-critical{background:var(--red)}.p-high{background:var(--accent2)}.p-medium{background:var(--accent)}.p-low{background:var(--green)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-header h2{font-size:15px;font-weight:600;flex:1}
+.card-header .ch-sub{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:1px}
+
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 14px;text-align:left;font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--surface2)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+td{padding:11px 14px;font-size:13px}
+.tid{font-family:var(--mono);color:var(--accent);font-weight:600;font-size:12px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c,var(--accent))}
+.stat-label{font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px}
+.stat-val{font-size:26px;font-weight:700;margin:5px 0 1px;font-family:var(--mono)}
+.stat-desc{font-size:11px;color:var(--muted)}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:600px;max-height:90vh;overflow-y:auto;transform:translateY(16px);transition:transform .2s}
+.overlay.open .modal{transform:none}
+.modal.wide{max-width:780px}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-head h2{font-size:15px;font-weight:700;flex:1}
+.close-x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;padding:2px 8px;line-height:1}
+.close-x:hover{color:var(--text)}
+.modal-body{padding:22px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid .full{grid-column:1/-1}
+.form-group textarea{resize:vertical;min-height:72px}
+
+/* TOASTS */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 16px;min-width:260px;max-width:340px;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:tin .3s ease;border-left:3px solid var(--accent)}
+@keyframes tin{from{transform:translateX(110%);opacity:0}to{transform:none;opacity:1}}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:14px;padding:10px 0;position:relative}
+.tl-item:not(:last-child)::after{content:'';position:absolute;left:11px;top:34px;bottom:-10px;width:2px;background:var(--border)}
+.tl-item.done::after{background:rgba(34,197,94,.4)}
+.tl-dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:2px}
+.tl-item.done .tl-dot{border-color:var(--green);background:rgba(34,197,94,.2);color:var(--green)}
+.tl-item.active .tl-dot{border-color:var(--accent);background:rgba(240,165,0,.2);color:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,165,0,.4)}50%{box-shadow:0 0 0 6px rgba(240,165,0,0)}}
+.tl-body h4{font-size:13px;font-weight:600}
+.tl-body p{font-size:12px;color:var(--muted);margin-top:2px}
+.tl-body .tl-time{font-size:10px;color:var(--border2);font-family:var(--mono);margin-top:3px}
+.tl-item.done .tl-time,.tl-item.active .tl-time{color:var(--muted)}
+
+/* STAR RATING */
+.stars{display:flex;gap:3px}
+.star{font-size:18px;cursor:pointer;transition:transform .1s;color:var(--border2)}
+.star.lit{color:var(--accent)}
+.star:hover{transform:scale(1.2)}
+
+/* OTP BOX */
+.otp-box{font-family:var(--mono);font-size:36px;font-weight:700;color:var(--accent);letter-spacing:12px;padding:16px 24px;background:rgba(240,165,0,.08);border:2px dashed rgba(240,165,0,.3);border-radius:var(--radius);text-align:center;margin:12px 0}
+
+/* ATTENDER CARD */
+.attender-card{display:flex;align-items:center;gap:14px;padding:14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)}
+.att-avatar{width:48px;height:48px;border-radius:50%;background:rgba(59,130,246,.2);border:2px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.att-info{flex:1}
+.att-name{font-size:14px;font-weight:600}
+.att-role{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:1px}
+.att-rating{display:flex;align-items:center;gap:6px;margin-top:4px}
+.att-stars{color:var(--accent);font-size:13px;letter-spacing:1px}
+.att-count{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.att-status{display:flex;align-items:center;gap:6px}
+.att-online{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+
+/* GEO / MEDIA UPLOAD */
+.capture-area{border:1.5px dashed var(--border2);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2)}
+.capture-area:hover{border-color:var(--accent);background:rgba(240,165,0,.04)}
+.capture-icon{font-size:28px;margin-bottom:8px}
+.capture-label{font-size:13px;color:var(--muted)}
+.geo-result{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;font-family:var(--mono);color:var(--cyan);margin-top:8px;display:none}
+.geo-result.show{display:block}
+.preview-thumb{width:80px;height:60px;border-radius:6px;object-fit:cover;border:1px solid var(--border)}
+.preview-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+/* VIEWS */
+.view{display:none}
+.view.active{display:block}
+
+/* CHIP TABS */
+.chip-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.chip{padding:6px 14px;font-size:12px;border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--muted);transition:all .2s;background:transparent}
+.chip.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+.chip:hover:not(.active){color:var(--text);border-color:var(--border2)}
+
+/* ASSIGN MODAL — attender list */
+.att-list{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto}
+.att-select-row{display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer;transition:all .2s}
+.att-select-row:hover{border-color:var(--accent)}
+.att-select-row.chosen{border-color:var(--green);background:rgba(34,197,94,.06)}
+.att-workload{font-size:11px;color:var(--muted);font-family:var(--mono)}
+
+/* FINANCE AMOUNT */
+.amount-pill{font-family:var(--mono);font-weight:600;color:var(--accent);font-size:13px}
+
+/* SEARCH ROW */
+.search-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-row input{flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font);font-size:14px;padding:9px 12px;outline:none}
+.search-row input:focus{border-color:var(--accent)}
+.search-row select{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;cursor:pointer}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:48px 24px;color:var(--muted)}
+.empty-state .ei{font-size:42px;margin-bottom:12px}
+.empty-state p{font-size:14px}
+.empty-row td{padding:0}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){.stats-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════ -->
+<div class="screen active" id="screen-login">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <h1>R<span>&</span>M Portal</h1>
+      <p>Repair &amp; Maintenance Management System v2.0</p>
+    </div>
+
+    <div style="margin-bottom:16px">
+      <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Select your role</div>
+      <div class="role-grid" id="role-grid">
+        <div class="role-card selected" data-role="requester" onclick="selectRole(this)">
+          <div class="role-icon">🏪</div>
+          <div class="role-name">Requester</div>
+          <div class="role-sub">Kitchen / Cluster Mgr</div>
+        </div>
+        <div class="role-card" data-role="supervisor" onclick="selectRole(this)">
+          <div class="role-icon">🔧</div>
+          <div class="role-name">RM Supervisor</div>
+          <div class="role-sub">Assign & coordinate</div>
+        </div>
+        <div class="role-card" data-role="manager" onclick="selectRole(this)">
+          <div class="role-icon">👔</div>
+          <div class="role-name">RM Manager</div>
+          <div class="role-sub">Approve & oversee</div>
+        </div>
+        <div class="role-card" data-role="attender" onclick="selectRole(this)">
+          <div class="role-icon">🛠️</div>
+          <div class="role-name">Attender</div>
+          <div class="role-sub">On-ground technician</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-form">
+      <h2 id="login-form-title">Login as Requester</h2>
+      <div class="form-group" id="kitchen-grp">
+        <label>Kitchen Location</label>
+        <select id="login-kitchen"><option value="">Select Kitchen</option></select>
+        <div class="err-msg" id="err-kitchen">Please select your kitchen</div>
+      </div>
+      <div class="form-group" id="attender-grp" style="display:none">
+        <label>Attender Name</label>
+        <select id="login-attender"><option value="">Select Attender</option></select>
+        <div class="err-msg" id="err-attender">Please select attender</div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Enter password (1234)">
+        <div class="err-msg" id="err-pass">Incorrect password</div>
+      </div>
+      <button class="login-btn" onclick="doLogin()">Login →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     APP SCREEN
+═══════════════════════════════════ -->
+<div class="screen" id="screen-app">
+  <div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-text">R<span>&</span>M Portal</div>
+      </div>
+      <nav class="nav" id="sidebar-nav"></nav>
+      <div class="sidebar-footer">
+        <div class="nav-item" onclick="logout()" style="color:var(--red)">
+          <span class="ni">🚪</span><span>Logout</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-area">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1 id="page-title">Dashboard</h1>
+          <p id="page-sub">Repair &amp; Maintenance</p>
+        </div>
+        <div class="topbar-user">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <div>
+            <div class="user-name" id="user-name-display"></div>
+            <div class="user-role" id="user-role-display"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="new-ticket-btn" onclick="openNewTicketModal()" style="display:none">+ New Ticket</button>
+        </div>
+      </div>
+
+      <div class="content" id="main-content"></div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     MODALS
+═══════════════════════════════════ -->
+
+<!-- NEW TICKET -->
+<div class="overlay" id="modal-new-ticket">
+  <div class="modal">
+    <div class="modal-head"><h2>🎫 Raise New Ticket</h2><button class="close-x" onclick="closeModal('modal-new-ticket')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Your Name *</label>
+          <input type="text" id="nt-name">
+          <div class="err-msg" id="err-nt-name">Required</div>
+        </div>
+        <div class="form-group">
+          <label>Kitchen Code</label>
+          <input type="text" id="nt-kitchen" readonly>
+        </div>
+        <div class="form-group full">
+          <label>Issue Title *</label>
+          <input type="text" id="nt-title" placeholder="Short description of the issue">
+          <div class="err-msg" id="err-nt-title">Required</div>
+        </div>
+        <div class="form-group">
+          <label>Department *</label>
+          <select id="nt-dept" onchange="loadSubCat()">
+            <option value="">Select</option>
+            <option>Carpentry</option><option>CCTV</option><option>Chiller</option>
+            <option>Civil</option><option>Cleaning & Shifting</option><option>DG</option>
+            <option>Drainage</option><option>Electrical</option><option>Electronic Service</option>
+            <option>Equipments</option><option>Exhaust Fan Cleaning</option><option>Gas</option>
+            <option>Internet Issue</option><option>Painting</option><option>Plumbing</option>
+            <option>RO Tank Cleaning</option><option>Rodent Issue</option>
+            <option>System & Computer</option><option>Tiles</option><option>Welding</option>
+          </select>
+          <div class="err-msg" id="err-nt-dept">Required</div>
+        </div>
+        <div class="form-group">
+          <label>Sub Category *</label>
+          <select id="nt-subcat">
+            <option value="">Select department first</option>
+          </select>
+          <div class="err-msg" id="err-nt-subcat">Required</div>
+        </div>
+        <div class="form-group">
+          <label>Priority *</label>
+          <select id="nt-priority">
+            <option value="">Select</option>
+            <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+          </select>
+          <div class="err-msg" id="err-nt-priority">Required</div>
+        </div>
+        <div class="form-group">
+          <label>Business Impact</label>
+          <select id="nt-impact">
+            <option>Operations Halted</option><option>Significant Disruption</option>
+            <option>Minor Disruption</option><option>No Impact</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Detailed Description</label>
+          <textarea id="nt-desc" placeholder="Describe the issue in detail…"></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Estimated Cost (₹)</label>
+          <input type="number" id="nt-cost" placeholder="Leave blank if unknown" min="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-new-ticket')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitTicket()">Submit Ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- TICKET DETAIL -->
+<div class="overlay" id="modal-detail">
+  <div class="modal wide">
+    <div class="modal-head">
+      <div><h2 id="md-title">Ticket</h2><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px" id="md-sub"></div></div>
+      <button class="close-x" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div id="md-body" class="modal-body"></div>
+  </div>
+</div>
+
+<!-- ASSIGN ATTENDER -->
+<div class="overlay" id="modal-assign">
+  <div class="modal">
+    <div class="modal-head"><h2>👤 Assign Attender</h2><button class="close-x" onclick="closeModal('modal-assign')">✕</button></div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Ticket: <span id="assign-tid" style="color:var(--accent);font-family:var(--mono)"></span></div>
+      <div class="att-list" id="assign-att-list"></div>
+      <div class="form-group" style="margin-top:16px">
+        <label>Transfer Amount to Attender (₹)</label>
+        <input type="number" id="assign-amount" placeholder="0 if no purchase needed" min="0">
+      </div>
+      <div class="form-group">
+        <label>Supervisor Note</label>
+        <textarea id="assign-note" placeholder="Instructions for attender…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-assign')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAssign()">Assign & Notify</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTATION / FINANCE -->
+<div class="overlay" id="modal-quot">
+  <div class="modal">
+    <div class="modal-head"><h2>💼 Add Quotation</h2><button class="close-x" onclick="closeModal('modal-quot')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Vendor Name *</label>
+          <input type="text" id="q-vendor" placeholder="Vendor / contractor name">
+          <div class="err-msg" id="err-q-vendor">Required</div>
+        </div>
+        <div class="form-group">
+          <label>Quotation Amount (₹) *</label>
+          <input type="number" id="q-amount" placeholder="0.00" min="0">
+          <div class="err-msg" id="err-q-amount">Required</div>
+        </div>
+        <div class="form-group full">
+          <label>Scope of Work</label>
+          <textarea id="q-scope" placeholder="What is included in the quotation…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Cashflow Impact</label>
+          <select id="q-cashflow"><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
+        </div>
+        <div class="form-group">
+          <label>Expected Completion Date</label>
+          <input type="date" id="q-date">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-quot')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitQuot()">Submit to Manager</button>
+    </div>
+  </div>
+</div>
+
+<!-- ATTENDER UPDATE MODAL -->
+<div class="overlay" id="modal-attender-update">
+  <div class="modal wide">
+    <div class="modal-head"><h2 id="au-title">Update Ticket</h2><button class="close-x" onclick="closeModal('modal-attender-update')">✕</button></div>
+    <div class="modal-body" id="au-body"></div>
+    <div class="modal-foot" id="au-foot"></div>
+  </div>
+</div>
+
+<!-- OTP VERIFY -->
+<div class="overlay" id="modal-otp">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><h2>🔐 Enter OTP to Close</h2><button class="close-x" onclick="closeModal('modal-otp')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Ask the Requester at the kitchen for their OTP to confirm job completion.</p>
+      <input type="text" id="otp-input" placeholder="Enter 4-digit OTP" maxlength="4" style="text-align:center;font-size:22px;letter-spacing:8px;font-family:var(--mono);font-weight:700;padding:14px">
+      <div class="err-msg show" id="otp-err" style="display:none;text-align:center;margin-top:8px">Incorrect OTP. Try again.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-otp')">Cancel</button>
+      <button class="btn btn-green" onclick="verifyOTP()">Verify & Close Ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="overlay" id="modal-feedback">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head"><h2>⭐ Rate Your Experience</h2><button class="close-x" onclick="closeModal('modal-feedback')">✕</button></div>
+    <div class="modal-body" style="text-align:center">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px">How was the service for ticket <span id="fb-tid" style="color:var(--accent);font-family:var(--mono)"></span>?</p>
+      <div id="fb-attender-card" style="margin-bottom:20px"></div>
+      <div style="margin-bottom:8px;font-size:13px;color:var(--muted2)">Tap to rate</div>
+      <div class="stars" style="justify-content:center;font-size:32px;gap:8px" id="fb-stars">
+        <span class="star" onclick="setRating(1)">★</span>
+        <span class="star" onclick="setRating(2)">★</span>
+        <span class="star" onclick="setRating(3)">★</span>
+        <span class="star" onclick="setRating(4)">★</span>
+        <span class="star" onclick="setRating(5)">★</span>
+      </div>
+      <div id="fb-label" style="font-size:14px;color:var(--muted);margin-top:10px">Select rating</div>
+      <div class="form-group" style="margin-top:16px;text-align:left">
+        <label>Comments (optional)</label>
+        <textarea id="fb-comment" placeholder="Any feedback about the service…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot" style="justify-content:center">
+      <button class="btn btn-outline" onclick="closeModal('modal-feedback')">Skip</button>
+      <button class="btn btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════
+//  CONSTANTS & DATA
+// ═══════════════════════════════════════════════════════
+const KITCHENS = [
+  "ANR01.BLR22","BLD01.BLR25","BMS01.BLR26","BOM01.BLR04","BSK01.BLR19",
+  "BSN01.BLR40","BTM01.BLR03","CK-Corp Office","CK-Dispatch Section",
+  "CK-Production Section","CK-Staff Room","CK-Warehouse Section",
+  "CMP01.CHN10","CRN01.BLR17","ECT01.BLR24","FZT01.BLR20","HNR01.BLR16",
+  "HSR01.BLR02","IND01.BLR01","JYN01.BLR30","KDG01.BLR14","KGI01.BLR43",
+  "KLN01.BLR09","KOR01.BLR12","KPR01.BLR41","MAR01.BLR05","MGP01.CHN01",
+  "NBR01.BLR21","PGD01.CHN06","PRR01.CHN04","RTN01.BLR23","SDP01.BLR34",
+  "SGS01.BLR42","SJP01.BLR08","SKM01.CHN03","SKN01.BLR07","TCP01.BLR27",
+  "TKR01.BLR29","VDP01.CHN02","VNR01.BLR18","WFD01.BLR06","WFD02.BLR13",
+  "YLK01.BLR15"
+];
+
+const SUB_CAT = {
+  Carpentry:['Wood Work','Door Repair','Furniture Fix'],CCTV:['Camera Issue','No Recording','Installation'],
+  Chiller:['Cooling Issue','Gas Refill','Maintenance'],Civil:['Wall Damage','Cracks','Structure Issue'],
+  'Cleaning & Shifting':['Deep Cleaning','Shifting Support'],DG:['Generator Issue','Fuel Problem'],
+  Drainage:['Blockage','Leakage'],Electrical:['Short Circuit','Wiring Issue','Power Failure'],
+  'Electronic Service':['Device Repair','Board Issue'],Equipments:['Repair','Installation'],
+  'Exhaust Fan Cleaning':['Cleaning','Motor Issue'],Gas:['Gas Line Issue','Connection Problem'],
+  'Internet Issue':['No Internet','Slow Speed'],Painting:['Wall Painting','Touch Up'],
+  Plumbing:['Leakage','Pipe Block','Tap Issue'],'RO Tank Cleaning':['Cleaning Required'],
+  'Rodent Issue':['Pest Control'],'System & Computer':['System Not Working','Software Issue'],
+  Tiles:['Broken Tiles','Replacement'],Welding:['Fabrication','Repair']
+};
+
+const ATTENDERS = [
+  {id:'A01',name:'Niranjan',phone:'9876543210',skills:['Electrical','Plumbing'],avgRating:4.6,totalRatings:38,active:true},
+  {id:'A02',name:'Yash patil',phone:'9876543211',skills:['Chiller','DG','Equipments'],avgRating:4.2,totalRatings:24,active:true},
+  {id:'A03',name:'Mohammed ALi',phone:'9876543212',skills:['Civil','Carpentry','Welding'],avgRating:4.8,totalRatings:51,active:true},
+  {id:'A04',name:'Arjun',phone:'9876543213',skills:['CCTV','System & Computer'],avgRating:4.0,totalRatings:19,active:true},
+  {id:'A05',name:'Aruna',phone:'9876543214',skills:['Painting','Tiles','Civil'],avgRating:4.5,totalRatings:33,active:false},
+  {id:'A06',name:'Networking vendor',phone:'9876543215',skills:['Plumbing','Drainage'],avgRating:4.3,totalRatings:27,active:true},
+  {id:'A07',name:'Philps',phone:'9876543216',skills:['Electrical','Gas'],avgRating:4.7,totalRatings:44,active:true},
+  {id:'A08',name:'Anand',phone:'9876543217',skills:['Exhaust Fan Cleaning','RO Tank Cleaning'],avgRating:4.1,totalRatings:16,active:true},
+  {id:'A09',name:'Sathis',phone:'9876543218',skills:['Rodent Issue','Cleaning & Shifting'],avgRating:3.9,totalRatings:12,active:false},
+  {id:'A10',name:'Samuel',phone:'9876543219',skills:['Electronic Service','System & Computer','Internet Issue'],avgRating:4.4,totalRatings:29,active:true},
+];
+
+// App state
+let tickets = [];
+let ticketCounter = 1000;
+let currentUser = null; // {role, name, kitchenCode, attenderId}
+let activeTicketId = null;
+let assignSelectedAttender = null;
+let feedbackRating = 0;
+let mediaCaptures = {}; // ticketId -> { location, reached, fixed, purchase }
+
+const ROLE_LABELS = {requester:'Requester',supervisor:'RM Supervisor',manager:'RM Manager',attender:'Attender'};
+const STATUS_COLORS = {
+  'Open':'b-open','In Progress':'b-progress','Accepted':'b-accepted',
+  'Purchase Done':'b-progress','Reached':'b-accepted','Fixed':'b-progress',
+  'Pending Finance':'b-pending','Pending Approval':'b-pending',
+  'Approved':'b-approved','On Hold':'b-hold','Closed':'b-closed','Reopened':'b-hold'
+};
+
+function statusBadge(s){ return `<span class="badge ${STATUS_COLORS[s]||'b-open'}">${s}</span>`; }
+function priDot(p){ return `<span class="p-dot p-${(p||'').toLowerCase()}"></span>${p||'-'}`; }
+function fmtAmt(n){ return n?'₹'+Number(n).toLocaleString('en-IN'):'-'; }
+function genOTP(){ return String(Math.floor(1000+Math.random()*9000)); }
+function starsHtml(r,n=0){ return '★'.repeat(Math.round(r))+'☆'.repeat(5-Math.round(r))+' '+r.toFixed(1)+(n?` <span style="color:var(--muted);font-size:11px">(${n})</span>`:''); }
+function now(){ return new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function tid(){ return 'RMT-'+(++ticketCounter); }
+
+// ─── SEED DATA ───────────────────────────────────────
+function seedData(){
+  const demo=[
+    {title:'AC Compressor Failure - Main Hall',dept:'Chiller',subcat:'Cooling Issue',priority:'Critical',impact:'Operations Halted',
+     kitchenCode:'HSR01.BLR02',requesterName:'Rahul Verma',status:'Pending Approval',
+     quotation:48500,vendor:'CoolTech Services',cashflow:'High',attenderId:'A02',
+     otp:'5823',timeline:[
+       {step:'Submitted',done:true,time:'3 Jan 2025, 09:12',note:''},
+       {step:'Ticket Created',done:true,time:'3 Jan 2025, 09:12',note:'RMT-1001 created'},
+       {step:'Assigned to Attender',done:true,time:'3 Jan 2025, 10:30',note:'Assigned to Ravi Kumar. ₹5000 transferred'},
+       {step:'Accepted by Attender',done:true,time:'3 Jan 2025, 11:00',note:''},
+       {step:'Attender Reached',done:true,time:'3 Jan 2025, 12:15',note:'Location verified'},
+       {step:'Quotation Submitted',done:true,time:'3 Jan 2025, 14:00',note:'₹48,500 by CoolTech Services'},
+       {step:'Pending Manager Approval',done:false,time:'',note:''},
+       {step:'Work Completed',done:false,time:'',note:''},
+       {step:'Closed',done:false,time:'',note:''},
+     ]},
+    {title:'Deep Freezer Temperature Issue',dept:'Equipments',subcat:'Repair',priority:'High',impact:'Significant Disruption',
+     kitchenCode:'MGP01.CHN01',requesterName:'Priya Nair',status:'Accepted',
+     attenderId:'A02',otp:'3491',transferAmount:3000,timeline:[
+       {step:'Submitted',done:true,time:'5 Jan 2025, 08:00',note:''},
+       {step:'Ticket Created',done:true,time:'5 Jan 2025, 08:00',note:''},
+       {step:'Assigned to Attender',done:true,time:'5 Jan 2025, 09:15',note:'Assigned to Ravi Kumar. ₹3000 transferred'},
+       {step:'Accepted by Attender',done:true,time:'5 Jan 2025, 09:45',note:''},
+       {step:'Attender Reached',done:false,time:'',note:''},
+       {step:'Quotation Submitted',done:false,time:'',note:''},
+       {step:'Pending Manager Approval',done:false,time:'',note:''},
+       {step:'Work Completed',done:false,time:'',note:''},
+       {step:'Closed',done:false,time:'',note:''},
+     ]},
+    {title:'Electrical Short Circuit - Prep Area',dept:'Electrical',subcat:'Short Circuit',priority:'Critical',impact:'Operations Halted',
+     kitchenCode:'BTM01.BLR03',requesterName:'Suresh Pillai',status:'Open',
+     otp:'7162',timeline:[
+       {step:'Submitted',done:true,time:'6 Jan 2025, 07:30',note:''},
+       {step:'Ticket Created',done:true,time:'6 Jan 2025, 07:30',note:''},
+       {step:'Assigned to Attender',done:false,time:'',note:'Pending supervisor action'},
+       {step:'Accepted by Attender',done:false,time:'',note:''},
+       {step:'Attender Reached',done:false,time:'',note:''},
+       {step:'Quotation Submitted',done:false,time:'',note:''},
+       {step:'Pending Manager Approval',done:false,time:'',note:''},
+       {step:'Work Completed',done:false,time:'',note:''},
+       {step:'Closed',done:false,time:'',note:''},
+     ]},
+    {title:'CCTV Replacement - Entry Gate',dept:'CCTV',subcat:'Camera Issue',priority:'Medium',impact:'Minor Disruption',
+     kitchenCode:'MAR01.BLR05',requesterName:'Anita Sharma',status:'Closed',
+     attenderId:'A04',quotation:5800,finalAmount:5750,rating:5,feedbackComment:'Excellent service!',
+     otp:'2244',timeline:[
+       {step:'Submitted',done:true,time:'2 Jan 2025',note:''},
+       {step:'Ticket Created',done:true,time:'2 Jan 2025',note:''},
+       {step:'Assigned to Attender',done:true,time:'2 Jan 2025',note:''},
+       {step:'Accepted by Attender',done:true,time:'2 Jan 2025',note:''},
+       {step:'Attender Reached',done:true,time:'2 Jan 2025',note:''},
+       {step:'Quotation Submitted',done:true,time:'2 Jan 2025',note:''},
+       {step:'Pending Manager Approval',done:true,time:'2 Jan 2025',note:''},
+       {step:'Work Completed',done:true,time:'2 Jan 2025',note:''},
+       {step:'Closed',done:true,time:'2 Jan 2025',note:'OTP verified. Rated 5★'},
+     ]},
+    {title:'Drainage Blockage - Kitchen Sink',dept:'Drainage',subcat:'Blockage',priority:'High',impact:'Significant Disruption',
+     kitchenCode:'WFD01.BLR06',requesterName:'Mohammed Imran',status:'Open',otp:genOTP(),timeline:[
+       {step:'Submitted',done:true,time:now(),note:''},
+       {step:'Ticket Created',done:true,time:now(),note:''},
+       {step:'Assigned to Attender',done:false,time:'',note:''},
+       {step:'Accepted by Attender',done:false,time:'',note:''},
+       {step:'Attender Reached',done:false,time:'',note:''},
+       {step:'Quotation Submitted',done:false,time:'',note:''},
+       {step:'Pending Manager Approval',done:false,time:'',note:''},
+       {step:'Work Completed',done:false,time:'',note:''},
+       {step:'Closed',done:false,time:'',note:''},
+     ]},
+  ];
+  demo.forEach(d=>{
+    tickets.push({id:tid(),date:d.timeline[0].time||now(),...d});
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOGIN
+// ═══════════════════════════════════════════════════════
+let selectedRole = 'requester';
+
+function selectRole(el){
+  document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRole = el.dataset.role;
+  const titles={requester:'Login as Requester',supervisor:'Login as RM Supervisor',manager:'Login as RM Manager',attender:'Login as Attender'};
+  document.getElementById('login-form-title').textContent = titles[selectedRole];
+  document.getElementById('kitchen-grp').style.display = selectedRole==='attender'?'none':'block';
+  document.getElementById('attender-grp').style.display = selectedRole==='attender'?'block':'none';
+}
+
+function doLogin(){
+  const pass = document.getElementById('login-pass').value;
+  let ok = true;
+  // clear errors
+  ['err-kitchen','err-attender','err-pass'].forEach(id=>{
+    const e=document.getElementById(id); if(e) e.classList.remove('show');
+  });
+  ['login-kitchen','login-attender','login-pass'].forEach(id=>{
+    const e=document.getElementById(id); if(e) e.classList.remove('err');
+  });
+
+  let kitchenCode='', attenderObj=null;
+
+  if(selectedRole!=='attender'){
+    kitchenCode = document.getElementById('login-kitchen').value;
+    if(!kitchenCode){ document.getElementById('err-kitchen').classList.add('show'); document.getElementById('login-kitchen').classList.add('err'); ok=false; }
+  } else {
+    const attId = document.getElementById('login-attender').value;
+    if(!attId){ document.getElementById('err-attender').classList.add('show'); document.getElementById('login-attender').classList.add('err'); ok=false; }
+    else attenderObj = ATTENDERS.find(a=>a.id===attId);
+  }
+  if(pass!=='1234'){ document.getElementById('err-pass').classList.add('show'); document.getElementById('login-pass').classList.add('err'); ok=false; }
+  if(!ok) return;
+
+  currentUser = {
+    role: selectedRole,
+    kitchenCode: kitchenCode||'',
+    name: attenderObj ? attenderObj.name : (selectedRole==='manager'?'Philips Kenny':selectedRole==='supervisor'?'Mahesh Kumar':'Kitchen Manager'),
+    attenderId: attenderObj?.id||null,
+    attenderObj
+  };
+  localStorage.setItem('rmUser', JSON.stringify(currentUser));
+  initApp();
+}
+
+function logout(){
+  localStorage.removeItem('rmUser');
+  currentUser=null; activeTicketId=null;
+  document.getElementById('screen-login').classList.add('active');
+  document.getElementById('screen-app').classList.remove('active');
+  document.getElementById('login-pass').value='';
+}
+
+// ═══════════════════════════════════════════════════════
+//  APP INIT
+// ═══════════════════════════════════════════════════════
+function initApp(){
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+
+  const roleIcons={requester:'🏪',supervisor:'🔧',manager:'👔',attender:'🛠️'};
+  document.getElementById('user-avatar').textContent = roleIcons[currentUser.role]||'?';
+  document.getElementById('user-name-display').textContent = currentUser.name;
+  document.getElementById('user-role-display').textContent = ROLE_LABELS[currentUser.role];
+
+  // New ticket button only for requester
+  document.getElementById('new-ticket-btn').style.display = currentUser.role==='requester'?'inline-flex':'none';
+
+  buildNav();
+  navigateTo('dashboard');
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════════════════════
+const NAV_CONFIG = {
+  requester:[
+    {id:'dashboard',icon:'📊',label:'My Dashboard'},
+    {id:'my-tickets',icon:'🎫',label:'My Tickets'},
+  ],
+  supervisor:[
+    {id:'dashboard',icon:'📊',label:'Dashboard'},
+    {id:'all-tickets',icon:'🎫',label:'All Tickets',badge:'open'},
+    {id:'assign-queue',icon:'⚡',label:'Assign Queue',badge:'unassigned'},
+    {id:'attenders',icon:'👥',label:'Attenders'},
+    {id:'finance',icon:'💰',label:'Finance'},
+    {id:'transfers',icon:'💸',label:'Transfers'},
+  ],
+  manager:[
+    {id:'dashboard',icon:'📊',label:'Dashboard'},
+    {id:'all-tickets',icon:'🎫',label:'All Tickets'},
+    {id:'approvals',icon:'✅',label:'Approvals',badge:'approvals'},
+    {id:'attenders',icon:'👥',label:'Attender Team'},
+    {id:'finance',icon:'💰',label:'Finance Overview'},
+  ],
+  attender:[
+    {id:'dashboard',icon:'📊',label:'My Dashboard'},
+    {id:'my-jobs',icon:'🔧',label:'My Jobs',badge:'active'},
+    {id:'history',icon:'📁',label:'Job History'},
+    {id:'profile',icon:'👤',label:'My Profile'},
+  ]
+};
+
+function buildNav(){
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML='';
+  const items = NAV_CONFIG[currentUser.role]||[];
+  nav.innerHTML='<div class="nav-label">Navigation</div>';
+  items.forEach(item=>{
+    const badge = item.badge ? getBadgeCount(item.badge) : 0;
+    nav.innerHTML+=`<div class="nav-item" id="nav-${item.id}" onclick="navigateTo('${item.id}')">
+      <span class="ni">${item.icon}</span>
+      <span>${item.label}</span>
+      ${badge>0?`<span class="nav-badge ${item.badge==='approvals'?'':'amber'}">${badge}</span>`:''}
+    </div>`;
+  });
+}
+
+function getBadgeCount(type){
+  if(type==='open') return tickets.filter(t=>t.status==='Open').length;
+  if(type==='unassigned') return tickets.filter(t=>!t.attenderId&&t.status!=='Closed').length;
+  if(type==='approvals') return tickets.filter(t=>t.status==='Pending Approval').length;
+  if(type==='active') return tickets.filter(t=>t.attenderId===currentUser.attenderId&&!['Closed'].includes(t.status)).length;
+  return 0;
+}
+
+function navigateTo(view){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById('nav-'+view); if(el) el.classList.add('active');
+  document.getElementById('page-title').textContent=({
+    dashboard:'Dashboard','my-tickets':'My Tickets','all-tickets':'All Tickets',
+    'assign-queue':'Assign Queue',attenders:'Attender Team',finance:'Finance',transfers:'Transfers',
+    approvals:'Approvals','my-jobs':'My Jobs',history:'Job History',profile:'My Profile'
+  }[view]||view);
+  renderView(view);
+}
+
+// ═══════════════════════════════════════════════════════
+//  VIEW ROUTER
+// ═══════════════════════════════════════════════════════
+function renderView(v){
+  const mc = document.getElementById('main-content');
+  const r = currentUser.role;
+  if(v==='dashboard'){
+    if(r==='requester') mc.innerHTML=renderRequesterDashboard();
+    else if(r==='supervisor') mc.innerHTML=renderSupervisorDashboard();
+    else if(r==='manager') mc.innerHTML=renderManagerDashboard();
+    else if(r==='attender') mc.innerHTML=renderAttenderDashboard();
+  } else if(v==='my-tickets') mc.innerHTML=renderMyTickets();
+  else if(v==='all-tickets') mc.innerHTML=renderAllTickets();
+  else if(v==='assign-queue') mc.innerHTML=renderAssignQueue();
+  else if(v==='attenders') mc.innerHTML=renderAttenders();
+  else if(v==='finance') mc.innerHTML=renderFinance();
+  else if(v==='transfers') mc.innerHTML=renderTransfers();
+  else if(v==='approvals') mc.innerHTML=renderApprovals();
+  else if(v==='my-jobs') mc.innerHTML=renderMyJobs();
+  else if(v==='history') mc.innerHTML=renderJobHistory();
+  else if(v==='profile') mc.innerHTML=renderAttenderProfile();
+  else mc.innerHTML=`<div class="empty-state"><div class="ei">🚧</div><p>Coming soon</p></div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  REQUESTER VIEWS
+// ═══════════════════════════════════════════════════════
+function renderRequesterDashboard(){
+  const mine = tickets.filter(t=>t.kitchenCode===currentUser.kitchenCode);
+  const open=mine.filter(t=>t.status!=='Closed').length;
+  const closed=mine.filter(t=>t.status==='Closed').length;
+  return `
+  <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="stat-card" style="--c:var(--blue)"><div class="stat-label">Active Tickets</div><div class="stat-val">${open}</div><div class="stat-desc">Awaiting resolution</div></div>
+    <div class="stat-card" style="--c:var(--green)"><div class="stat-label">Closed</div><div class="stat-val">${closed}</div><div class="stat-desc">Successfully resolved</div></div>
+    <div class="stat-card" style="--c:var(--accent)"><div class="stat-label">Your Kitchen</div><div class="stat-val" style="font-size:14px;margin-top:10px">${currentUser.kitchenCode}</div><div class="stat-desc">Assigned location</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>My Tickets</h2><button class="btn btn-primary btn-sm" onclick="openNewTicketModal()">+ New Ticket</button></div>
+    ${renderTicketTable(mine,true)}
+  </div>`;
+}
+
+function renderMyTickets(){
+  const mine=tickets.filter(t=>t.kitchenCode===currentUser.kitchenCode);
+  return `
+  <div style="margin-bottom:16px;display:flex;justify-content:flex-end">
+    <button class="btn btn-primary" onclick="openNewTicketModal()">+ New Ticket</button>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>My Tickets</h2><span style="font-size:12px;color:var(--muted);font-family:var(--mono)">${mine.length} total</span></div>
+    ${renderTicketTable(mine,true)}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  SUPERVISOR VIEWS
+// ═══════════════════════════════════════════════════════
+function renderSupervisorDashboard(){
+  const open=tickets.filter(t=>t.status==='Open').length;
+  const unassigned=tickets.filter(t=>!t.attenderId&&t.status!=='Closed').length;
+  const inprog=tickets.filter(t=>['Accepted','Reached','Fixed','Purchase Done'].includes(t.status)).length;
+  const finpend=tickets.filter(t=>t.status==='Pending Finance').length;
+  return `
+  <div class="stats-grid">
+    <div class="stat-card" style="--c:var(--blue)"><div class="stat-label">Open</div><div class="stat-val">${open}</div><div class="stat-desc">Need assignment</div></div>
+    <div class="stat-card" style="--c:var(--red)"><div class="stat-label">Unassigned</div><div class="stat-val">${unassigned}</div><div class="stat-desc">Action required</div></div>
+    <div class="stat-card" style="--c:var(--purple)"><div class="stat-label">In Progress</div><div class="stat-val">${inprog}</div><div class="stat-desc">Attender active</div></div>
+    <div class="stat-card" style="--c:var(--accent)"><div class="stat-label">Finance Queue</div><div class="stat-val">${finpend}</div><div class="stat-desc">Pending review</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>⚡ Unassigned — Needs Action</h2></div>
+    ${renderTicketTable(tickets.filter(t=>!t.attenderId&&!['Closed'].includes(t.status)),false,true)}
+  </div>`;
+}
+
+function renderAssignQueue(){
+  const q=tickets.filter(t=>!t.attenderId&&!['Closed'].includes(t.status));
+  return `<div class="card"><div class="card-header"><h2>Assignment Queue</h2><span style="font-size:12px;color:var(--muted);font-family:var(--mono)">${q.length} unassigned</span></div>${renderTicketTable(q,false,true)}</div>`;
+}
+
+function renderAllTickets(){
+  return `
+  <div class="search-row">
+    <input type="text" placeholder="🔍 Search by ID, title, kitchen…" id="search-q" oninput="filterAllTickets()">
+    <select id="filter-st" onchange="filterAllTickets()">
+      <option value="">All Status</option>
+      <option>Open</option><option>Accepted</option><option>Reached</option><option>Fixed</option>
+      <option>Pending Finance</option><option>Pending Approval</option><option>Approved</option><option>Closed</option>
+    </select>
+  </div>
+  <div class="card" id="all-tickets-card">
+    <div class="card-header"><h2>All Tickets</h2><span style="font-size:12px;color:var(--muted);font-family:var(--mono)" id="at-count">${tickets.length} tickets</span></div>
+    <div id="at-table">${renderTicketTable(tickets,false,currentUser.role==='supervisor')}</div>
+  </div>`;
+}
+
+function filterAllTickets(){
+  const q=(document.getElementById('search-q')?.value||'').toLowerCase();
+  const st=document.getElementById('filter-st')?.value||'';
+  const filtered=tickets.filter(t=>{
+    if(st&&t.status!==st) return false;
+    if(q&&!t.title.toLowerCase().includes(q)&&!t.id.toLowerCase().includes(q)&&!(t.kitchenCode||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('at-count').textContent=filtered.length+' tickets';
+  document.getElementById('at-table').innerHTML=renderTicketTable(filtered,false,currentUser.role==='supervisor');
+}
+
+// ═══════════════════════════════════════════════════════
+//  MANAGER VIEWS
+// ═══════════════════════════════════════════════════════
+function renderManagerDashboard(){
+  const app=tickets.filter(t=>t.status==='Pending Approval').length;
+  const closed=tickets.filter(t=>t.status==='Closed').length;
+  const totalSpend=tickets.filter(t=>t.finalAmount).reduce((s,t)=>s+t.finalAmount,0);
+  const critical=tickets.filter(t=>t.priority==='Critical'&&t.status!=='Closed').length;
+  return `
+  <div class="stats-grid">
+    <div class="stat-card" style="--c:var(--red)"><div class="stat-label">Awaiting Approval</div><div class="stat-val">${app}</div><div class="stat-desc">Manager decision needed</div></div>
+    <div class="stat-card" style="--c:var(--green)"><div class="stat-label">Closed</div><div class="stat-val">${closed}</div><div class="stat-desc">Resolved</div></div>
+    <div class="stat-card" style="--c:var(--accent)"><div class="stat-label">Total Spend</div><div class="stat-val" style="font-size:18px;margin-top:8px">₹${totalSpend.toLocaleString('en-IN')}</div><div class="stat-desc">Invoiced & closed</div></div>
+    <div class="stat-card" style="--c:var(--red)"><div class="stat-label">Critical Open</div><div class="stat-val">${critical}</div><div class="stat-desc">High business impact</div></div>
+  </div>
+  ${renderApprovals()}`;
+}
+
+function renderApprovals(){
+  const app=tickets.filter(t=>t.status==='Pending Approval');
+  if(!app.length) return `<div class="card"><div class="card-header"><h2>Pending Approvals</h2></div><div class="empty-state"><div class="ei">✅</div><p>No pending approvals</p></div></div>`;
+  return `<div class="card">
+    <div class="card-header"><h2>Pending Approvals</h2><span style="font-size:12px;color:var(--red);font-family:var(--mono)">${app.length} awaiting decision</span></div>
+    <table><thead><tr><th>Ticket ID</th><th>Title</th><th>Kitchen</th><th>Quotation</th><th>Cashflow</th><th>Vendor</th><th>Action</th></tr></thead>
+    <tbody>${app.map(t=>`<tr onclick="openDetail('${t.id}')">
+      <td class="tid">${t.id}</td><td>${t.title}</td>
+      <td style="font-size:12px;font-family:var(--mono)">${t.kitchenCode}</td>
+      <td class="amount-pill">${fmtAmt(t.quotation)}</td>
+      <td><span class="badge ${t.cashflow==='High'||t.cashflow==='Critical'?'b-hold':'b-approved'}">${t.cashflow||'N/A'}</span></td>
+      <td style="font-size:12px">${t.vendor||'-'}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn btn-green btn-xs" onclick="managerApprove('${t.id}')">Approve</button>
+        <button class="btn btn-outline btn-xs" onclick="managerReject('${t.id}')">Return</button>
+      </td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  ATTENDER VIEWS
+// ═══════════════════════════════════════════════════════
+function renderAttenderDashboard(){
+  const myJobs=tickets.filter(t=>t.attenderId===currentUser.attenderId);
+  const active=myJobs.filter(t=>!['Closed'].includes(t.status)).length;
+  const closed=myJobs.filter(t=>t.status==='Closed').length;
+  const att=ATTENDERS.find(a=>a.id===currentUser.attenderId)||{};
+  return `
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px">
+    <div class="stat-card" style="--c:var(--blue)"><div class="stat-label">Active Jobs</div><div class="stat-val">${active}</div><div class="stat-desc">Assigned to you</div></div>
+    <div class="stat-card" style="--c:var(--green)"><div class="stat-label">Completed</div><div class="stat-val">${closed}</div><div class="stat-desc">Jobs closed</div></div>
+    <div class="stat-card" style="--c:var(--accent)"><div class="stat-label">My Rating</div><div class="stat-val" style="font-size:18px;margin-top:8px;color:var(--accent)">${att.avgRating||'-'}★</div><div class="stat-desc">${att.totalRatings||0} ratings</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>Active Jobs</h2></div>
+    ${renderMyJobs(true)}
+  </div>`;
+}
+
+function renderMyJobs(embedded=false){
+  const myJobs=tickets.filter(t=>t.attenderId===currentUser.attenderId&&!['Closed'].includes(t.status));
+  if(!myJobs.length) return `<div class="empty-state"><div class="ei">🎉</div><p>No active jobs. All caught up!</p></div>`;
+  const rows=myJobs.map(t=>`<tr onclick="openAttenderUpdate('${t.id}')">
+    <td class="tid">${t.id}</td>
+    <td>${t.title}</td>
+    <td style="font-size:12px;font-family:var(--mono)">${t.kitchenCode}</td>
+    <td>${t.priority?priDot(t.priority):'—'}</td>
+    <td>${statusBadge(t.status)}</td>
+    <td>${t.transferAmount?`<span class="amount-pill">${fmtAmt(t.transferAmount)}</span>`:'-'}</td>
+    <td onclick="event.stopPropagation()"><button class="btn btn-primary btn-sm" onclick="openAttenderUpdate('${t.id}')">Update</button></td>
+  </tr>`).join('');
+  const table=`<table><thead><tr><th>ID</th><th>Title</th><th>Kitchen</th><th>Priority</th><th>Status</th><th>Transfer</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+  if(embedded) return table;
+  return `<div class="card"><div class="card-header"><h2>Active Jobs</h2></div>${table}</div>`;
+}
+
+function renderJobHistory(){
+  const done=tickets.filter(t=>t.attenderId===currentUser.attenderId&&t.status==='Closed');
+  if(!done.length) return `<div class="card"><div class="card-header"><h2>Job History</h2></div><div class="empty-state"><div class="ei">📁</div><p>No closed jobs yet</p></div></div>`;
+  return `<div class="card"><div class="card-header"><h2>Job History</h2></div>
+    <table><thead><tr><th>ID</th><th>Title</th><th>Kitchen</th><th>Final Amount</th><th>Rating</th><th>Closed</th></tr></thead>
+    <tbody>${done.map(t=>`<tr>
+      <td class="tid">${t.id}</td><td>${t.title}</td>
+      <td style="font-size:12px;font-family:var(--mono)">${t.kitchenCode}</td>
+      <td class="amount-pill">${fmtAmt(t.finalAmount||t.quotation)}</td>
+      <td style="color:var(--accent)">${t.rating?'★'.repeat(t.rating)+'☆'.repeat(5-t.rating)+' '+t.rating:'-'}</td>
+      <td style="font-size:12px;color:var(--muted)">${t.closedAt||t.date}</td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+function renderAttenderProfile(){
+  const att=ATTENDERS.find(a=>a.id===currentUser.attenderId)||currentUser.attenderObj||{};
+  const myJobs=tickets.filter(t=>t.attenderId===currentUser.attenderId);
+  return `
+  <div style="display:grid;grid-template-columns:300px 1fr;gap:20px">
+    <div>
+      <div class="card" style="padding:24px;text-align:center">
+        <div style="width:80px;height:80px;border-radius:50%;background:rgba(59,130,246,.2);border:3px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px">🛠️</div>
+        <div style="font-size:18px;font-weight:700">${att.name||currentUser.name}</div>
+        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-top:4px">Attender ID: ${att.id||currentUser.attenderId}</div>
+        <div style="margin:16px 0;font-size:28px;color:var(--accent);font-weight:700">${(att.avgRating||0).toFixed(1)} ★</div>
+        <div style="font-size:13px;color:var(--muted)">${att.totalRatings||0} total ratings</div>
+        <div style="margin-top:16px;display:flex;justify-content:center">
+          <span class="badge ${att.active?'b-approved':'b-hold'}">${att.active?'Available':'Off Duty'}</span>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px;padding:18px">
+        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Skills</div>
+        ${(att.skills||[]).map(s=>`<span style="display:inline-block;background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:3px 10px;font-size:12px;margin:3px">${s}</span>`).join('')}
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px;padding:18px">
+        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Performance Stats</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div><div style="font-size:11px;color:var(--muted)">Total Jobs</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)">${myJobs.length}</div></div>
+          <div><div style="font-size:11px;color:var(--muted)">Closed</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--green)">${myJobs.filter(j=>j.status==='Closed').length}</div></div>
+          <div><div style="font-size:11px;color:var(--muted)">Avg Rating</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--accent)">${(att.avgRating||0).toFixed(1)}</div></div>
+          <div><div style="font-size:11px;color:var(--muted)">Total Ratings</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)">${att.totalRatings||0}</div></div>
+        </div>
+      </div>
+      <div class="card" style="padding:18px">
+        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Recent Ratings</div>
+        ${myJobs.filter(j=>j.rating).slice(-5).reverse().map(j=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+            <div><div style="font-size:13px;font-weight:500">${j.title}</div><div style="font-size:11px;color:var(--muted)">${j.closedAt||j.date}</div></div>
+            <div style="color:var(--accent)">${'★'.repeat(j.rating)}</div>
+          </div>`).join('')||'<div style="color:var(--muted);font-size:13px">No ratings yet</div>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  ATTENDER VIEWS (Supervisor/Manager)
+// ═══════════════════════════════════════════════════════
+function renderAttenders(){
+  return `
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
+    ${ATTENDERS.map(a=>`
+      <div class="attender-card">
+        <div class="att-avatar">🛠️</div>
+        <div class="att-info">
+          <div class="att-name">${a.name}</div>
+          <div class="att-role">${a.id} · ${a.phone}</div>
+          <div class="att-rating">
+            <span class="att-stars">${'★'.repeat(Math.round(a.avgRating))}${'☆'.repeat(5-Math.round(a.avgRating))}</span>
+            <span class="att-count">${a.avgRating.toFixed(1)} (${a.totalRatings} ratings)</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">${a.skills.join(', ')}</div>
+        </div>
+        <div class="att-status">
+          <div class="att-online" style="background:${a.active?'var(--green)':'var(--muted)'};box-shadow:${a.active?'0 0 6px var(--green)':'none'}"></div>
+          <span style="font-size:11px;color:var(--muted)">${a.active?'Active':'Off'}</span>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  FINANCE
+// ═══════════════════════════════════════════════════════
+function renderFinance(){
+  const finT=tickets.filter(t=>['Pending Finance','Pending Approval','Approved','Closed'].includes(t.status));
+  const totalPend=tickets.filter(t=>['Pending Finance','Pending Approval'].includes(t.status)).reduce((s,t)=>s+(t.quotation||0),0);
+  const totalApp=tickets.filter(t=>['Approved','Closed'].includes(t.status)).reduce((s,t)=>s+(t.quotation||0),0);
+  const totalClose=tickets.filter(t=>t.finalAmount).reduce((s,t)=>s+(t.finalAmount||0),0);
+  return `
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+    <div class="stat-card" style="--c:var(--accent)"><div class="stat-label">Pending Review</div><div class="stat-val" style="font-size:18px;margin-top:8px">₹${totalPend.toLocaleString('en-IN')}</div></div>
+    <div class="stat-card" style="--c:var(--green)"><div class="stat-label">Approved Budget</div><div class="stat-val" style="font-size:18px;margin-top:8px">₹${totalApp.toLocaleString('en-IN')}</div></div>
+    <div class="stat-card" style="--c:var(--blue)"><div class="stat-label">Invoiced & Closed</div><div class="stat-val" style="font-size:18px;margin-top:8px">₹${totalClose.toLocaleString('en-IN')}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>Finance Tracker</h2></div>
+    <table><thead><tr><th>Ticket ID</th><th>Title</th><th>Kitchen</th><th>Quotation</th><th>Status</th><th>Cashflow</th><th>Final Amount</th></tr></thead>
+    <tbody>${finT.map(t=>`<tr onclick="openDetail('${t.id}')">
+      <td class="tid">${t.id}</td><td>${t.title}</td>
+      <td style="font-size:12px;font-family:var(--mono)">${t.kitchenCode}</td>
+      <td class="amount-pill">${fmtAmt(t.quotation)}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td><span class="badge ${t.cashflow==='High'||t.cashflow==='Critical'?'b-hold':'b-approved'}">${t.cashflow||'N/A'}</span></td>
+      <td class="amount-pill" style="color:var(--green)">${fmtAmt(t.finalAmount)}</td>
+    </tr>`).join('')||'<tr class="empty-row"><td colspan="7"><div class="empty-state"><div class="ei">💰</div><p>No finance records</p></div></td></tr>'}</tbody></table>
+  </div>`;
+}
+
+function renderTransfers(){
+  const t=tickets.filter(t=>t.transferAmount>0);
+  const total=t.reduce((s,x)=>s+x.transferAmount,0);
+  return `
+  <div class="stat-card" style="--c:var(--cyan);margin-bottom:20px;max-width:300px">
+    <div class="stat-label">Total Transferred</div>
+    <div class="stat-val" style="font-size:20px;margin-top:8px">₹${total.toLocaleString('en-IN')}</div>
+    <div class="stat-desc">To attenders for purchases</div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h2>Attender Transfers</h2></div>
+    <table><thead><tr><th>Ticket ID</th><th>Attender</th><th>Kitchen</th><th>Transfer Amount</th><th>Status</th></tr></thead>
+    <tbody>${t.map(x=>{
+      const att=ATTENDERS.find(a=>a.id===x.attenderId);
+      return `<tr><td class="tid">${x.id}</td><td>${att?.name||'-'}</td><td style="font-size:12px;font-family:var(--mono)">${x.kitchenCode}</td><td class="amount-pill">${fmtAmt(x.transferAmount)}</td><td>${statusBadge(x.status)}</td></tr>`;
+    }).join('')||'<tr class="empty-row"><td colspan="5"><div class="empty-state"><div class="ei">💸</div><p>No transfers yet</p></div></td></tr>'}</tbody></table>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  TICKET TABLE HELPER
+// ═══════════════════════════════════════════════════════
+function renderTicketTable(list,showOTP=false,showAssign=false){
+  if(!list.length) return `<div class="empty-state"><div class="ei">🎫</div><p>No tickets found</p></div>`;
+  return `<table><thead><tr>
+    <th>ID</th><th>Title</th><th>Kitchen</th><th>Dept</th><th>Priority</th><th>Status</th><th>Date</th>
+    ${showOTP?'<th>OTP</th>':''}
+    ${showAssign?'<th>Action</th>':''}
+  </tr></thead><tbody>${list.map(t=>`<tr onclick="openDetail('${t.id}')">
+    <td class="tid">${t.id}</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</td>
+    <td style="font-size:11px;font-family:var(--mono)">${t.kitchenCode}</td>
+    <td style="font-size:12px">${t.dept}</td>
+    <td>${priDot(t.priority)}</td>
+    <td>${statusBadge(t.status)}</td>
+    <td style="font-size:11px;color:var(--muted)">${t.date}</td>
+    ${showOTP?`<td><span class="otp-display" style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--accent);letter-spacing:4px">${t.otp||'—'}</span></td>`:''}
+    ${showAssign?`<td onclick="event.stopPropagation()">
+      ${!t.attenderId?`<button class="btn btn-primary btn-sm" onclick="openAssignModal('${t.id}')">Assign</button>`
+        :`<button class="btn btn-outline btn-sm" onclick="openAssignModal('${t.id}')">Re-assign</button>`}
+    </td>`:''}
+  </tr>`).join('')}</tbody></table>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  TICKET DETAIL MODAL
+// ═══════════════════════════════════════════════════════
+function openDetail(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t){toast('Ticket not found','red');return;}
+  activeTicketId=id;
+  const att=t.attenderId?ATTENDERS.find(a=>a.id===t.attenderId):null;
+
+  document.getElementById('md-title').textContent=t.title;
+  document.getElementById('md-sub').textContent=`${t.id} · ${t.dept} · ${t.kitchenCode}`;
+
+  // Meta grid
+  const meta=[
+    {k:'Status',v:statusBadge(t.status)},
+    {k:'Priority',v:priDot(t.priority)},
+    {k:'Kitchen',v:`<span style="font-family:var(--mono);font-size:12px">${t.kitchenCode}</span>`},
+    {k:'Requester',v:t.requesterName||'-'},
+    {k:'Raised',v:t.date},
+    {k:'Department',v:t.dept+(t.subcat?` / ${t.subcat}`:'')},
+    {k:'Business Impact',v:t.impact||'-'},
+    {k:'Quotation',v:t.quotation?`<span class="amount-pill">${fmtAmt(t.quotation)}</span>`:'Not yet'},
+    {k:'Attender',v:att?`<span style="font-weight:600">${att.name}</span>`:'Unassigned'},
+    {k:'Transfer',v:t.transferAmount?`<span class="amount-pill" style="color:var(--cyan)">${fmtAmt(t.transferAmount)}</span>`:'None'},
+  ];
+
+  let body=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)">
+    ${meta.map(m=>`<div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${m.k}</div><div style="font-size:13px;font-weight:600">${m.v}</div></div>`).join('')}
+  </div>`;
+
+  // Requester OTP (only show to requester)
+  if(currentUser.role==='requester'&&t.status!=='Closed'){
+    body+=`<div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Your OTP — Share with Attender when work is done</div>
+      <div class="otp-box">${t.otp||'—'}</div>
+      <div style="font-size:12px;color:var(--muted);text-align:center">Share this only when you are satisfied with the work</div>
+    </div>`;
+  }
+
+  // Feedback button for requester on closed ticket without rating
+  if(currentUser.role==='requester'&&t.status==='Closed'&&!t.rating){
+    body+=`<div style="margin-bottom:20px"><button class="btn btn-primary" onclick="openFeedback('${t.id}')">⭐ Rate this Service</button></div>`;
+  }
+  if(t.rating){
+    body+=`<div style="margin-bottom:20px;padding:14px;background:rgba(240,165,0,.06);border-radius:var(--radius);border:1px solid rgba(240,165,0,.2)">
+      <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:6px">YOUR RATING</div>
+      <div style="font-size:20px;color:var(--accent)">${'★'.repeat(t.rating)}${'☆'.repeat(5-t.rating)} <span style="font-size:14px;font-weight:600">${t.rating}/5</span></div>
+      ${t.feedbackComment?`<div style="font-size:13px;color:var(--muted);margin-top:6px">"${t.feedbackComment}"</div>`:''}
+    </div>`;
+  }
+
+  // Timeline
+  body+=`<div style="margin-bottom:20px"><div style="font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">Ticket Timeline</div>
+    <div class="timeline">${(t.timeline||[]).map((step,i)=>{
+      const activeIdx=(t.timeline||[]).findIndex(s=>!s.done);
+      const cls=step.done?'done':(i===activeIdx?'active':'');
+      return `<div class="tl-item ${cls}">
+        <div class="tl-dot">${step.done?'✓':(i+1)}</div>
+        <div class="tl-body"><h4>${step.step}</h4>${step.note?`<p>${step.note}</p>`:''}<div class="tl-time">${step.time||'Pending'}</div></div>
+      </div>`;
+    }).join('')}</div>
+  </div>`;
+
+  // Action buttons
+  let actions='';
+  const r=currentUser.role;
+  if(r==='supervisor'){
+    if(!t.attenderId) actions+=`<button class="btn btn-primary btn-sm" onclick="openAssignModal('${t.id}');closeModal('modal-detail')">Assign Attender</button>`;
+    else actions+=`<button class="btn btn-outline btn-sm" onclick="openAssignModal('${t.id}');closeModal('modal-detail')">Re-assign</button>`;
+    if(t.status==='Pending Finance') actions+=`<button class="btn btn-blue btn-sm" onclick="openQuotModal('${t.id}');closeModal('modal-detail')">Add Quotation</button>`;
+    if(t.status==='Closed') actions+=`<button class="btn btn-outline btn-sm" onclick="reopenTicket('${t.id}')">Re-open</button>`;
+  }
+  if(r==='manager'){
+    if(t.status==='Pending Approval') actions+=`<button class="btn btn-green btn-sm" onclick="managerApprove('${t.id}');closeModal('modal-detail')">Approve</button><button class="btn btn-outline btn-sm" onclick="managerReject('${t.id}');closeModal('modal-detail')">Return</button>`;
+  }
+  if(actions) body+=`<div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--border)">${actions}</div>`;
+
+  document.getElementById('md-body').innerHTML=body;
+  openModal('modal-detail');
+}
+
+// ═══════════════════════════════════════════════════════
+//  ATTENDER UPDATE FLOW
+// ═══════════════════════════════════════════════════════
+function openAttenderUpdate(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t){toast('Ticket not found','red');return;}
+  activeTicketId=id;
+  document.getElementById('au-title').textContent=t.id+' — '+t.title;
+
+  const cap=mediaCaptures[id]||{};
+  let body='', foot='';
+
+  // ─── STATUS MACHINE ───────────────────────────────
+  if(t.status==='Accepted'||t.status==='In Progress'||t.status==='Open'){
+    // Step: Reach Location
+    body=`
+      <div style="margin-bottom:18px;padding:14px;background:rgba(59,130,246,.06);border-radius:var(--radius);border:1px solid rgba(59,130,246,.2)">
+        <div style="font-size:12px;color:var(--blue);font-family:var(--mono);margin-bottom:4px">STEP 1 — REACH LOCATION</div>
+        <div style="font-size:13px;color:var(--muted)">Capture your location and take a photo/video on arrival.</div>
+      </div>
+      <div style="margin-bottom:14px">
+        <button class="btn btn-blue btn-sm" onclick="captureGeo('${id}','reach')">📍 Get My Location</button>
+        <div class="geo-result ${cap.reachGeo?'show':''}" id="geo-reach">${cap.reachGeo||''}</div>
+      </div>
+      <div class="capture-area" onclick="triggerCamera('${id}','reach')" style="margin-bottom:12px">
+        <div class="capture-icon">📷</div>
+        <div class="capture-label">Take Arrival Photo / Video</div>
+      </div>
+      <div class="preview-row" id="prev-reach">${renderPreviews(cap.reachMedia)}</div>`;
+    foot=`<button class="btn btn-outline" onclick="closeModal('modal-attender-update')">Close</button>
+      <button class="btn btn-blue" onclick="markReached('${id}')">✅ Mark as Reached</button>`;
+  }
+  else if(t.status==='Reached'){
+    // Step: Purchase or Skip, then Fix
+    const purchaseReq=cap.purchaseRequired!==false;
+    body=`
+      <div style="margin-bottom:18px;padding:14px;background:rgba(168,85,247,.06);border-radius:var(--radius);border:1px solid rgba(168,85,247,.2)">
+        <div style="font-size:12px;color:var(--purple);font-family:var(--mono);margin-bottom:4px">STEP 2 — PURCHASE (if required)</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px">
+          <input type="checkbox" id="purchase-req" ${cap.purchaseRequired?'checked':''} onchange="togglePurchase('${id}',this.checked)" style="width:18px;height:18px;accent-color:var(--accent)">
+          Purchase required for this job
+        </label>
+      </div>
+      <div id="purchase-fields" style="${cap.purchaseRequired?'':'display:none'}">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Vendor / Shop Name</label>
+            <input type="text" id="pu-vendor" value="${cap.purchaseVendor||''}" placeholder="Where did you buy?">
+          </div>
+          <div class="form-group">
+            <label>Amount Spent (₹)</label>
+            <input type="number" id="pu-amount" value="${cap.purchaseAmount||''}" placeholder="0.00" min="0">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Attach Bill / Receipt</label>
+          <div class="capture-area" onclick="triggerCamera('${id}','bill')">
+            <div class="capture-icon">🧾</div>
+            <div class="capture-label">Photo of receipt / bill</div>
+          </div>
+          <div class="preview-row" id="prev-bill">${renderPreviews(cap.billMedia)}</div>
+        </div>
+        <div style="margin-bottom:14px">
+          <button class="btn btn-blue btn-sm" onclick="captureGeo('${id}','purchase')">📍 Capture Purchase Location</button>
+          <div class="geo-result ${cap.purchaseGeo?'show':''}" id="geo-purchase">${cap.purchaseGeo||''}</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="font-size:12px;color:var(--purple);font-family:var(--mono);margin-bottom:12px">STEP 3 — FIX THE ISSUE</div>
+        <div class="capture-area" onclick="triggerCamera('${id}','fix')" style="margin-bottom:10px">
+          <div class="capture-icon">🎥</div>
+          <div class="capture-label">Photo / Video of completed work</div>
+        </div>
+        <div class="preview-row" id="prev-fix">${renderPreviews(cap.fixMedia)}</div>
+      </div>`;
+    foot=`<button class="btn btn-outline" onclick="closeModal('modal-attender-update')">Close</button>
+      <button class="btn btn-purple" onclick="savePurchaseDetails('${id}')">Save Purchase Details</button>
+      <button class="btn btn-green" onclick="markFixed('${id}')">🔧 Mark Issue Fixed</button>`;
+  }
+  else if(t.status==='Fixed'||t.status==='Purchase Done'){
+    body=`
+      <div style="padding:14px;background:rgba(34,197,94,.06);border-radius:var(--radius);border:1px solid rgba(34,197,94,.2);margin-bottom:18px">
+        <div style="font-size:12px;color:var(--green);font-family:var(--mono);margin-bottom:4px">STEP 4 — CLOSE WITH OTP</div>
+        <div style="font-size:13px;color:var(--muted)">Ask the requester at the kitchen for their OTP to confirm job completion.</div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Final Notes / Work Summary</label>
+        <textarea id="close-notes" placeholder="Describe what was done…">${cap.closeNotes||''}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Invoice Amount (₹)</label>
+        <input type="number" id="close-invoice-amt" value="${cap.invoiceAmt||''}" placeholder="Final amount charged">
+      </div>`;
+    foot=`<button class="btn btn-outline" onclick="closeModal('modal-attender-update')">Close</button>
+      <button class="btn btn-green" onclick="openOTPVerify('${id}')">🔐 Enter OTP & Close</button>`;
+  }
+  else {
+    body=`<div style="text-align:center;padding:32px;color:var(--muted)">
+      <div style="font-size:32px;margin-bottom:12px">${t.status==='Closed'?'✅':'📋'}</div>
+      <div>Ticket is <strong>${t.status}</strong></div>
+    </div>`;
+    foot=`<button class="btn btn-outline" onclick="closeModal('modal-attender-update')">Close</button>`;
+  }
+
+  document.getElementById('au-body').innerHTML=body;
+  document.getElementById('au-foot').innerHTML=foot;
+  openModal('modal-attender-update');
+}
+
+function togglePurchase(id,checked){
+  if(!mediaCaptures[id]) mediaCaptures[id]={};
+  mediaCaptures[id].purchaseRequired=checked;
+  document.getElementById('purchase-fields').style.display=checked?'':'none';
+}
+
+function captureGeo(id,type){
+  if(!navigator.geolocation){toast('Geolocation not supported','red');return;}
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const txt=`📍 ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)} (±${Math.round(pos.coords.accuracy)}m)`;
+    if(!mediaCaptures[id]) mediaCaptures[id]={};
+    if(type==='reach') mediaCaptures[id].reachGeo=txt;
+    if(type==='purchase') mediaCaptures[id].purchaseGeo=txt;
+    const el=document.getElementById(`geo-${type}`);
+    if(el){el.textContent=txt;el.classList.add('show');}
+    toast('📍 Location captured!','green');
+  },err=>{
+    const fallback=`📍 Simulated: 12.97${Math.floor(Math.random()*99)}, 77.59${Math.floor(Math.random()*99)} (GPS)`;
+    if(!mediaCaptures[id]) mediaCaptures[id]={};
+    if(type==='reach') mediaCaptures[id].reachGeo=fallback;
+    if(type==='purchase') mediaCaptures[id].purchaseGeo=fallback;
+    const el=document.getElementById(`geo-${type}`);
+    if(el){el.textContent=fallback;el.classList.add('show');}
+    toast('📍 Location captured (simulated)','green');
+  });
+}
+
+function triggerCamera(id,type){
+  // Create a file input and simulate camera
+  const input=document.createElement('input');
+  input.type='file'; input.accept='image/*,video/*'; input.capture='environment';
+  input.onchange=e=>{
+    const file=e.target.files[0];
+    if(!file) return;
+    if(!mediaCaptures[id]) mediaCaptures[id]={};
+    const key=type==='reach'?'reachMedia':type==='bill'?'billMedia':'fixMedia';
+    if(!mediaCaptures[id][key]) mediaCaptures[id][key]=[];
+    const url=URL.createObjectURL(file);
+    mediaCaptures[id][key].push({url,name:file.name,type:file.type});
+    const prev=document.getElementById(`prev-${type}`);
+    if(prev) prev.innerHTML=renderPreviews(mediaCaptures[id][key]);
+    toast('📸 Media attached!','green');
+  };
+  input.click();
+}
+
+function renderPreviews(media){
+  if(!media||!media.length) return '';
+  return media.map(m=>m.type.startsWith('video')?
+    `<video src="${m.url}" class="preview-thumb" controls></video>`:
+    `<img src="${m.url}" class="preview-thumb" alt="capture">`
+  ).join('');
+}
+
+function savePurchaseDetails(id){
+  if(!mediaCaptures[id]) mediaCaptures[id]={};
+  mediaCaptures[id].purchaseVendor=document.getElementById('pu-vendor')?.value||'';
+  mediaCaptures[id].purchaseAmount=document.getElementById('pu-amount')?.value||0;
+  const t=tickets.find(x=>x.id===id);
+  if(t&&mediaCaptures[id].purchaseRequired){
+    t.status='Purchase Done';
+    addTimeline(t,'Purchase Completed',`Vendor: ${mediaCaptures[id].purchaseVendor}, ₹${mediaCaptures[id].purchaseAmount}`);
+  }
+  toast('💾 Purchase details saved','green');
+}
+
+function markReached(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  t.status='Reached';
+  addTimeline(t,'Attender Reached',`Location verified${(mediaCaptures[id]?.reachGeo?': '+mediaCaptures[id].reachGeo:'')}`);
+  closeModal('modal-attender-update');
+  toast('✅ Marked as Reached. Now fix the issue!','green');
+  navigateTo('my-jobs');
+}
+
+function markFixed(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  t.status='Fixed';
+  addTimeline(t,'Issue Fixed','Attender has fixed the issue. Awaiting OTP confirmation.');
+  closeModal('modal-attender-update');
+  toast('🔧 Marked as Fixed. Get OTP from requester to close.','green');
+  navigateTo('my-jobs');
+}
+
+// ═══════════════════════════════════════════════════════
+//  OTP
+// ═══════════════════════════════════════════════════════
+function openOTPVerify(id){
+  activeTicketId=id;
+  document.getElementById('otp-input').value='';
+  document.getElementById('otp-err').style.display='none';
+  openModal('modal-otp');
+}
+
+function verifyOTP(){
+  const t=tickets.find(x=>x.id===activeTicketId);
+  if(!t) return;
+  const entered=document.getElementById('otp-input').value.trim();
+  if(entered!==t.otp){
+    document.getElementById('otp-err').style.display='block';
+    document.getElementById('otp-input').classList.add('err');
+    return;
+  }
+  const cap=mediaCaptures[activeTicketId]||{};
+  t.status='Closed';
+  t.closedAt=now();
+  t.finalAmount=parseFloat(cap.invoiceAmt)||t.quotation||0;
+  t.closureNotes=cap.closeNotes||'';
+  addTimeline(t,'Closed','OTP verified by requester. Ticket successfully closed.');
+  closeModal('modal-otp');
+  closeModal('modal-attender-update');
+  toast(`✅ Ticket ${t.id} closed!`,'green');
+  // Prompt feedback on requester side (simulate)
+  setTimeout(()=>{ if(currentUser.role==='attender') toast('📧 Feedback request sent to requester','blue'); },800);
+  navigateTo('my-jobs');
+}
+
+// ═══════════════════════════════════════════════════════
+//  FEEDBACK
+// ═══════════════════════════════════════════════════════
+function openFeedback(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  activeTicketId=id;
+  feedbackRating=0;
+  document.getElementById('fb-tid').textContent=t.id;
+  document.getElementById('fb-comment').value='';
+  setRating(0);
+  const att=t.attenderId?ATTENDERS.find(a=>a.id===t.attenderId):null;
+  document.getElementById('fb-attender-card').innerHTML=att?`
+    <div class="attender-card">
+      <div class="att-avatar">🛠️</div>
+      <div class="att-info">
+        <div class="att-name">${att.name}</div>
+        <div class="att-role">Attender · ${att.id}</div>
+        <div class="att-rating"><span class="att-stars">${'★'.repeat(Math.round(att.avgRating))}${'☆'.repeat(5-Math.round(att.avgRating))}</span><span class="att-count">${att.avgRating.toFixed(1)} (${att.totalRatings} ratings)</span></div>
+      </div>
+    </div>`:'' ;
+  closeModal('modal-detail');
+  openModal('modal-feedback');
+}
+
+function setRating(n){
+  feedbackRating=n;
+  const labels=['','Poor','Below average','Average','Good','Excellent!'];
+  document.getElementById('fb-label').textContent=n?labels[n]:'Select rating';
+  document.querySelectorAll('#fb-stars .star').forEach((s,i)=>s.classList.toggle('lit',i<n));
+}
+
+function submitFeedback(){
+  const t=tickets.find(x=>x.id===activeTicketId);
+  if(!t){closeModal('modal-feedback');return;}
+  if(!feedbackRating){toast('Please select a rating','red');return;}
+  t.rating=feedbackRating;
+  t.feedbackComment=document.getElementById('fb-comment').value;
+  // Update attender avg rating
+  const att=ATTENDERS.find(a=>a.id===t.attenderId);
+  if(att){
+    const total=att.avgRating*att.totalRatings+feedbackRating;
+    att.totalRatings++;
+    att.avgRating=Math.round((total/att.totalRatings)*10)/10;
+  }
+  closeModal('modal-feedback');
+  toast(`⭐ Thank you! You rated ${feedbackRating}/5`,'green');
+  navigateTo('dashboard');
+}
+
+// ═══════════════════════════════════════════════════════
+//  ASSIGN
+// ═══════════════════════════════════════════════════════
+function openAssignModal(id){
+  activeTicketId=id;
+  assignSelectedAttender=null;
+  document.getElementById('assign-tid').textContent=id;
+  document.getElementById('assign-amount').value='';
+  document.getElementById('assign-note').value='';
+  const t=tickets.find(x=>x.id===id);
+  // List attenders
+  document.getElementById('assign-att-list').innerHTML=ATTENDERS.map(a=>`
+    <div class="att-select-row ${t?.attenderId===a.id?'chosen':''}" id="arow-${a.id}" onclick="selectAttender('${a.id}')">
+      <div class="att-avatar" style="width:40px;height:40px;font-size:16px">🛠️</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${a.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${a.skills.join(', ')}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="color:var(--accent);font-size:13px">${'★'.repeat(Math.round(a.avgRating))} ${a.avgRating}</div>
+        <div class="att-workload">${tickets.filter(t2=>t2.attenderId===a.id&&t2.status!=='Closed').length} active</div>
+      </div>
+      <div style="width:10px;height:10px;border-radius:50%;background:${a.active?'var(--green)':'var(--muted)'}"></div>
+    </div>`).join('');
+  openModal('modal-assign');
+}
+
+function selectAttender(id){
+  assignSelectedAttender=id;
+  document.querySelectorAll('.att-select-row').forEach(r=>r.classList.remove('chosen'));
+  document.getElementById('arow-'+id)?.classList.add('chosen');
+}
+
+function confirmAssign(){
+  if(!assignSelectedAttender){toast('Please select an attender','red');return;}
+  const t=tickets.find(x=>x.id===activeTicketId);
+  if(!t) return;
+  const att=ATTENDERS.find(a=>a.id===assignSelectedAttender);
+  const amt=parseFloat(document.getElementById('assign-amount').value)||0;
+  const note=document.getElementById('assign-note').value;
+  const wasReassign=!!t.attenderId;
+  t.attenderId=assignSelectedAttender;
+  t.transferAmount=amt;
+  t.status='In Progress';
+  addTimeline(t,wasReassign?'Re-assigned to Attender':'Assigned to Attender',
+    `Assigned to ${att.name}${amt?`. ₹${amt.toLocaleString('en-IN')} transferred for purchases`:''}.${note?' Note: '+note:''}`);
+  closeModal('modal-assign');
+  toast(`✅ Assigned to ${att.name}${amt?`, ₹${amt.toLocaleString('en-IN')} transferred`:''}`, 'green');
+  buildNav(); navigateTo('dashboard');
+}
+
+// ═══════════════════════════════════════════════════════
+//  QUOTATION / ATTENDER ACCEPT
+// ═══════════════════════════════════════════════════════
+function openQuotModal(id){
+  activeTicketId=id;
+  ['q-vendor','q-amount','q-scope'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('q-date').value=new Date(Date.now()+7*86400000).toISOString().split('T')[0];
+  openModal('modal-quot');
+}
+
+function submitQuot(){
+  const vendor=document.getElementById('q-vendor').value;
+  const amount=document.getElementById('q-amount').value;
+  if(!vendor||!amount){toast('Please fill vendor and amount','red');return;}
+  const t=tickets.find(x=>x.id===activeTicketId);
+  if(!t) return;
+  t.vendor=vendor;
+  t.quotation=parseFloat(amount);
+  t.scope=document.getElementById('q-scope').value;
+  t.cashflow=document.getElementById('q-cashflow').value;
+  t.status='Pending Approval';
+  addTimeline(t,'Quotation Submitted',`₹${t.quotation.toLocaleString('en-IN')} by ${vendor}. Sent to manager for approval.`);
+  closeModal('modal-quot');
+  toast(`📋 Quotation ₹${t.quotation.toLocaleString('en-IN')} submitted for approval`,'green');
+  buildNav(); navigateTo('dashboard');
+}
+
+// Attender accepts job
+function attenderAccept(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  t.status='Accepted';
+  addTimeline(t,'Accepted by Attender','Attender has accepted the job and will visit the location.');
+  closeModal('modal-detail');
+  toast('✅ Job accepted!','green');
+  navigateTo('my-jobs');
+}
+
+// ═══════════════════════════════════════════════════════
+//  MANAGER ACTIONS
+// ═══════════════════════════════════════════════════════
+function managerApprove(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  t.status='Approved';
+  addTimeline(t,'Manager Approved',`Quotation of ₹${(t.quotation||0).toLocaleString('en-IN')} approved. Work can proceed.`);
+  toast('✅ Ticket approved!','green');
+  buildNav(); navigateTo('approvals');
+}
+
+function managerReject(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  t.status='Pending Finance';
+  addTimeline(t,'Returned by Manager','Manager returned quotation for review. Please revise and resubmit.');
+  toast('↩ Returned to Finance','yellow');
+  buildNav(); navigateTo('approvals');
+}
+
+function reopenTicket(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  t.status='Reopened';
+  t.attenderId=null;
+  addTimeline(t,'Ticket Reopened','Supervisor reopened the ticket for reassignment.');
+  closeModal('modal-detail');
+  toast('🔄 Ticket reopened','yellow');
+  buildNav(); navigateTo('dashboard');
+}
+
+// ═══════════════════════════════════════════════════════
+//  NEW TICKET
+// ═══════════════════════════════════════════════════════
+function openNewTicketModal(){
+  document.getElementById('nt-kitchen').value=currentUser.kitchenCode||'';
+  document.getElementById('nt-name').value=currentUser.name||'';
+  ['nt-title','nt-dept','nt-subcat','nt-priority'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.value='';el.classList.remove('err');}
+  });
+  openModal('modal-new-ticket');
+}
+
+function loadSubCat(){
+  const dept = document.getElementById('nt-dept').value;
+  const sub = document.getElementById('nt-subcat');
+
+  sub.innerHTML = '<option value="">Select</option>';
+
+  if(SUB_CAT[dept]){
+    SUB_CAT[dept].forEach(s=>{
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      sub.appendChild(opt);
+    });
+  }
+}
+
+
+function submitTicket(){
+  const name=document.getElementById('nt-name').value.trim();
+  const title=document.getElementById('nt-title').value.trim();
+  const dept=document.getElementById('nt-dept').value;
+  const subcat=document.getElementById('nt-subcat').value;
+  const priority=document.getElementById('nt-priority').value;
+
+  let ok=true;
+
+  const check=(id,errId,val)=>{
+    const el=document.getElementById(id),
+          er=document.getElementById(errId);
+
+    if(!val){
+      if(el)el.classList.add('err');
+      if(er)er.classList.add('show');
+      ok=false;
+    }else{
+      if(el)el.classList.remove('err');
+      if(er)er.classList.remove('show');
+    }
+  };
+
+  check('nt-name','err-nt-name',name);
+  check('nt-title','err-nt-title',title);
+  check('nt-dept','err-nt-dept',dept);
+  check('nt-subcat','err-nt-subcat',subcat);
+  check('nt-priority','err-nt-priority',priority);
+
+  if(!ok){
+    toast('Please fill all required fields','red');
+    return;
+  }
+
+  const newId = tid(); // ✅ FIX ADDED
+
+  const t={
+    id:newId, // ✅ FIXED
+    kitchenCode:currentUser.kitchenCode,
+    requesterName:name,
+    title, dept, subcat, priority,
+    impact:document.getElementById('nt-impact').value,
+    desc:document.getElementById('nt-desc').value,
+    cost:parseFloat(document.getElementById('nt-cost').value)||0,
+    status:'Open',
+    date:now(),
+    otp:genOTP(),
+    timeline:[
+      {step:'Submitted',done:true,time:now(),note:`Raised by ${name}`},
+      {step:'Ticket Created',done:true,time:now(),note:`${newId} generated`}, // ✅ FIXED
+      {step:'Assigned to Attender',done:false,time:'',note:'Awaiting supervisor action'},
+      {step:'Accepted by Attender',done:false,time:'',note:''},
+      {step:'Attender Reached',done:false,time:'',note:''},
+      {step:'Quotation Submitted',done:false,time:'',note:''},
+      {step:'Pending Manager Approval',done:false,time:'',note:''},
+      {step:'Work Completed',done:false,time:'',note:''},
+      {step:'Closed',done:false,time:'',note:''},
+    ]
+  };
+
+  tickets.unshift(t);
+
+  closeModal('modal-new-ticket');
+  toast(`✅ Ticket ${t.id} submitted!`,'green');
+  buildNav();
+  navigateTo('dashboard');
+}
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+function addTimeline(t,step,note=''){
+  const existing=t.timeline.find(s=>s.step===step);
+  if(existing){existing.done=true;existing.time=now();existing.note=note;}
+  else t.timeline.push({step,done:true,time:now(),note});
+}
+
+function openModal(id){ document.getElementById(id)?.classList.add('open'); }
+function closeModal(id){ document.getElementById(id)?.classList.remove('open'); }
+
+function toast(msg,type='green'){
+  const wrap=document.getElementById('toast-wrap');
+  const el=document.createElement('div');
+  el.className='toast';
+  const colors={green:'var(--green)',red:'var(--red)',blue:'var(--blue)',yellow:'var(--accent)'};
+  el.style.borderLeftColor=colors[type]||'var(--accent)';
+  el.textContent=msg;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(),4500);
+}
+
+// Close modals on overlay click
+document.addEventListener('click',e=>{
+  if(e.target.classList.contains('overlay')) closeModal(e.target.id);
+});
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+function boot(){
+  // Populate kitchen dropdown
+  const kd=document.getElementById('login-kitchen');
+  KITCHENS.forEach(k=>{ const o=document.createElement('option');o.value=k;o.textContent=k;kd.appendChild(o); });
+
+  // Populate attender dropdown
+  const ad=document.getElementById('login-attender');
+  ATTENDERS.forEach(a=>{ const o=document.createElement('option');o.value=a.id;o.textContent=`${a.name} (${a.id})`;ad.appendChild(o); });
+
+  seedData();
+
+  // Auto-login if stored
+  const stored=localStorage.getItem('rmUser');
+  if(stored){ try{ currentUser=JSON.parse(stored); initApp(); }catch(e){ localStorage.removeItem('rmUser'); } }
+}
+
+window.addEventListener('DOMContentLoaded',boot);
+window.addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElementById('screen-login').classList.contains('active')) doLogin(); });
+</script>
+</body>
+</html>
