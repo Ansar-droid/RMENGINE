@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>R&M Engine v2</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>R&amp;M Engine v2</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Sora:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#0a0c10; --surface:#111318; --surface2:#181c24; --surface3:#1e2330;
@@ -71,26 +69,40 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
    APP LAYOUT
 ══════════════════════════════════ */
 #screen-app{flex-direction:column}
-.app-shell{display:flex;height:100vh;overflow:hidden}
+.app-shell{display:flex;height:100vh;overflow:hidden;position:relative}
 .sidebar{
-  width:220px;background:var(--surface);border-right:1px solid var(--border);
-  display:flex;flex-direction:column;flex-shrink:0;transition:width .3s;
+  width:270px;background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;transition:transform .25s ease;
+  position:fixed;left:0;top:0;bottom:0;z-index:90;transform:translateX(-100%);
+  box-shadow:20px 0 60px rgba(0,0,0,.35)
 }
-.sidebar.collapsed{width:60px}
-.main-area{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+body.drawer-open .sidebar{transform:translateX(0)}
+.sidebar.collapsed{width:270px}
+.main-area{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0;width:100%}
 .topbar{
   padding:14px 24px;border-bottom:1px solid var(--border);
   display:flex;align-items:center;gap:12px;background:var(--surface);
   position:sticky;top:0;z-index:20;
 }
+.sidebar-toggle{
+  width:38px;height:38px;border-radius:10px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text);display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;flex-shrink:0
+}
+.sidebar-toggle:hover{border-color:var(--accent);color:var(--accent)}
+.sidebar-toggle span{display:block;width:16px;height:2px;background:currentColor;border-radius:2px;position:relative}
+.sidebar-toggle span::before,.sidebar-toggle span::after{content:'';position:absolute;left:0;width:16px;height:2px;background:currentColor;border-radius:2px}
+.sidebar-toggle span::before{top:-5px}
+.sidebar-toggle span::after{top:5px}
 .topbar-title{flex:1}
 .topbar-title h1{font-size:17px;font-weight:600}
 .topbar-title p{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:1px}
-.topbar-user{display:flex;align-items:center;gap:10px}
+.topbar-user{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .user-avatar{width:34px;height:34px;border-radius:50%;background:rgba(240,165,0,.2);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px}
 .user-name{font-size:13px;font-weight:500}
 .user-role{font-size:11px;color:var(--muted);font-family:var(--mono)}
 .content{padding:22px 24px;flex:1}
+.mobile-logout{display:none}
 
 /* SIDEBAR NAV */
 .logo{padding:18px 14px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
@@ -110,6 +122,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .nav-badge.amber{background:var(--accent);color:#000}
 .nav-badge.blue{background:var(--blue)}
 .sidebar-footer{padding:12px 8px;border-top:1px solid var(--border)}
+.sidebar-summary{padding:12px 14px;border-bottom:1px solid var(--border)}
+.sidebar-summary .sum-title{font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.sidebar-summary .sum-meta{font-size:12px;color:var(--text);line-height:1.5}
+.sidebar-summary .sum-meta span{color:var(--accent)}
+.drawer-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:85}
+body.drawer-open .drawer-backdrop{display:block}
 
 /* ══════════════════════════════════
    GENERIC COMPONENTS
@@ -213,6 +231,12 @@ td{padding:11px 14px;font-size:13px}
 .att-count{font-size:11px;color:var(--muted);font-family:var(--mono)}
 .att-status{display:flex;align-items:center;gap:6px}
 .att-online{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+.mapping-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mapping-chip{display:inline-flex;align-items:center;gap:8px;padding:5px 10px;border-radius:999px;border:1px solid rgba(59,130,246,.25);background:rgba(59,130,246,.08);color:var(--text);font-size:11px}
+.mapping-chip button{border:none;background:transparent;color:var(--muted2);cursor:pointer;padding:0;font-size:12px;line-height:1}
+.mapping-chip button:hover{color:var(--red)}
+.mapping-add-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.mapping-note{font-size:12px;color:var(--muted);line-height:1.45}
 
 /* GEO / MEDIA UPLOAD */
 .capture-area{border:1.5px dashed var(--border2);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2)}
@@ -258,29 +282,33 @@ td{padding:11px 14px;font-size:13px}
 
 /* RESPONSIVE */
 @media(max-width:768px){
-  .sidebar{display:none}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .form-grid{grid-template-columns:1fr}
+  .topbar{padding:12px 14px}
+  .content{padding:16px 14px}
+  .mobile-logout{display:inline-flex}
+  .sidebar-toggle{display:inline-flex}
 }
+@media(min-width:769px){.sidebar-toggle{display:inline-flex}}
 @media(max-width:480px){.stats-grid{grid-template-columns:1fr}}
 </style>
 </head>
-<body>
+<body class="">
 
 <!-- ═══════════════════════════════════
      LOGIN SCREEN
 ═══════════════════════════════════ -->
-<div class="screen active" id="screen-login">
+<div class="screen" id="screen-login">
   <div class="login-wrap">
     <div class="login-logo">
-      <h1>R<span>&</span>M Portal</h1>
+      <h1>R<span>&amp;</span>M Portal</h1>
       <p>Repair &amp; Maintenance Management System v2.0</p>
     </div>
 
     <div style="margin-bottom:16px">
       <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Select your role</div>
       <div class="role-grid" id="role-grid">
-        <div class="role-card selected" data-role="requester" onclick="selectRole(this)">
+        <div class="role-card" data-role="requester" onclick="selectRole(this)">
           <div class="role-icon">🏪</div>
           <div class="role-name">Requester</div>
           <div class="role-sub">Kitchen / Cluster Mgr</div>
@@ -288,14 +316,14 @@ td{padding:11px 14px;font-size:13px}
         <div class="role-card" data-role="supervisor" onclick="selectRole(this)">
           <div class="role-icon">🔧</div>
           <div class="role-name">RM Supervisor</div>
-          <div class="role-sub">Assign & coordinate</div>
+          <div class="role-sub">Assign &amp; coordinate</div>
         </div>
         <div class="role-card" data-role="manager" onclick="selectRole(this)">
           <div class="role-icon">👔</div>
           <div class="role-name">RM Manager</div>
-          <div class="role-sub">Approve & oversee</div>
+          <div class="role-sub">Approve &amp; oversee</div>
         </div>
-        <div class="role-card" data-role="attender" onclick="selectRole(this)">
+        <div class="role-card selected" data-role="attender" onclick="selectRole(this)">
           <div class="role-icon">🛠️</div>
           <div class="role-name">Attender</div>
           <div class="role-sub">On-ground technician</div>
@@ -304,15 +332,15 @@ td{padding:11px 14px;font-size:13px}
     </div>
 
     <div class="login-form">
-      <h2 id="login-form-title">Login as Requester</h2>
-      <div class="form-group" id="kitchen-grp">
+      <h2 id="login-form-title">Login as Attender</h2>
+      <div class="form-group" id="kitchen-grp" style="display: none;">
         <label>Kitchen Location</label>
-        <select id="login-kitchen"><option value="">Select Kitchen</option></select>
+        <select id="login-kitchen"><option value="">Select Kitchen</option><option value="ANR01.BLR22">ANR01.BLR22</option><option value="BLD01.BLR25">BLD01.BLR25</option><option value="BMS01.BLR26">BMS01.BLR26</option><option value="BOM01.BLR04">BOM01.BLR04</option><option value="BSK01.BLR19">BSK01.BLR19</option><option value="BSN01.BLR40">BSN01.BLR40</option><option value="BTM01.BLR03">BTM01.BLR03</option><option value="CK-Corp Office">CK-Corp Office</option><option value="CK-Dispatch Section">CK-Dispatch Section</option><option value="CK-Production Section">CK-Production Section</option><option value="CK-Staff Room">CK-Staff Room</option><option value="CK-Warehouse Section">CK-Warehouse Section</option><option value="CMP01.CHN10">CMP01.CHN10</option><option value="CRN01.BLR17">CRN01.BLR17</option><option value="ECT01.BLR24">ECT01.BLR24</option><option value="FZT01.BLR20">FZT01.BLR20</option><option value="HNR01.BLR16">HNR01.BLR16</option><option value="HSR01.BLR02">HSR01.BLR02</option><option value="IND01.BLR01">IND01.BLR01</option><option value="JYN01.BLR30">JYN01.BLR30</option><option value="KDG01.BLR14">KDG01.BLR14</option><option value="KGI01.BLR43">KGI01.BLR43</option><option value="KLN01.BLR09">KLN01.BLR09</option><option value="KOR01.BLR12">KOR01.BLR12</option><option value="KPR01.BLR41">KPR01.BLR41</option><option value="MAR01.BLR05">MAR01.BLR05</option><option value="MGP01.CHN01">MGP01.CHN01</option><option value="NBR01.BLR21">NBR01.BLR21</option><option value="PGD01.CHN06">PGD01.CHN06</option><option value="PRR01.CHN04">PRR01.CHN04</option><option value="RTN01.BLR23">RTN01.BLR23</option><option value="SDP01.BLR34">SDP01.BLR34</option><option value="SGS01.BLR42">SGS01.BLR42</option><option value="SJP01.BLR08">SJP01.BLR08</option><option value="SKM01.CHN03">SKM01.CHN03</option><option value="SKN01.BLR07">SKN01.BLR07</option><option value="TCP01.BLR27">TCP01.BLR27</option><option value="TKR01.BLR29">TKR01.BLR29</option><option value="VDP01.CHN02">VDP01.CHN02</option><option value="VNR01.BLR18">VNR01.BLR18</option><option value="WFD01.BLR06">WFD01.BLR06</option><option value="WFD02.BLR13">WFD02.BLR13</option><option value="YLK01.BLR15">YLK01.BLR15</option></select>
         <div class="err-msg" id="err-kitchen">Please select your kitchen</div>
       </div>
-      <div class="form-group" id="attender-grp" style="display:none">
+      <div class="form-group" id="attender-grp" style="display: block;">
         <label>Attender Name</label>
-        <select id="login-attender"><option value="">Select Attender</option></select>
+        <select id="login-attender"><option value="">Select Attender</option><option value="A01">Niranjan (A01)</option><option value="A02">Yash patil (A02)</option><option value="A03">Mohammed ALi (A03)</option><option value="A04">Arjun (A04)</option><option value="A05">Aruna (A05)</option><option value="A06">Networking vendor (A06)</option><option value="A07">Philps (A07)</option><option value="A08">Anand (A08)</option><option value="A09">Sathis (A09)</option><option value="A10">Samuel (A10)</option></select>
         <div class="err-msg" id="err-attender">Please select attender</div>
       </div>
       <div class="form-group">
@@ -328,16 +356,38 @@ td{padding:11px 14px;font-size:13px}
 <!-- ═══════════════════════════════════
      APP SCREEN
 ═══════════════════════════════════ -->
-<div class="screen" id="screen-app">
+<div class="screen active" id="screen-app">
+  <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false)"></div>
   <div class="app-shell">
 
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
       <div class="logo">
         <div class="logo-icon">⚡</div>
-        <div class="logo-text">R<span>&</span>M Portal</div>
+        <div class="logo-text">R<span>&amp;</span>M Portal</div>
       </div>
-      <nav class="nav" id="sidebar-nav"></nav>
+      <div class="sidebar-summary" id="sidebar-summary">
+    <div class="sum-title">Quick View</div>
+    <div class="sum-meta"><span>My Profile</span></div>
+    <div class="sum-meta" style="margin-top:8px"><div>Assigned 0</div><div>Started 0</div><div>Reached 0</div><div>Closed 0</div><div>Spend ₹0</div></div>
+  </div>
+      <nav class="nav" id="sidebar-nav"><div class="nav-label">Navigation</div><div class="nav-item" id="nav-dashboard" onclick="navigateTo('dashboard')">
+      <span class="ni">📊</span>
+      <span>My Dashboard</span>
+      
+    </div><div class="nav-item" id="nav-my-jobs" onclick="navigateTo('my-jobs')">
+      <span class="ni">🔧</span>
+      <span>My Jobs</span>
+      
+    </div><div class="nav-item" id="nav-history" onclick="navigateTo('history')">
+      <span class="ni">📁</span>
+      <span>Job History</span>
+      
+    </div><div class="nav-item active" id="nav-profile" onclick="navigateTo('profile')">
+      <span class="ni">👤</span>
+      <span>My Profile</span>
+      
+    </div></nav>
       <div class="sidebar-footer">
         <div class="nav-item" onclick="logout()" style="color:var(--red)">
           <span class="ni">🚪</span><span>Logout</span>
@@ -348,21 +398,56 @@ td{padding:11px 14px;font-size:13px}
     <!-- MAIN -->
     <main class="main-area">
       <div class="topbar">
+        <button class="sidebar-toggle" onclick="toggleDrawer()"><span></span></button>
         <div class="topbar-title">
-          <h1 id="page-title">Dashboard</h1>
+          <h1 id="page-title">My Profile</h1>
           <p id="page-sub">Repair &amp; Maintenance</p>
         </div>
         <div class="topbar-user">
-          <div class="user-avatar" id="user-avatar">?</div>
-          <div>
-            <div class="user-name" id="user-name-display"></div>
-            <div class="user-role" id="user-role-display"></div>
+          <div class="user-avatar" id="user-avatar">🛠️</div>
+        <div>
+            <div class="user-name" id="user-name-display">Niranjan</div>
+            <div class="user-role" id="user-role-display">Attender</div>
           </div>
+          <button class="btn btn-outline btn-sm mobile-logout" onclick="logout()">Logout</button>
           <button class="btn btn-primary btn-sm" id="new-ticket-btn" onclick="openNewTicketModal()" style="display:none">+ New Ticket</button>
         </div>
       </div>
 
-      <div class="content" id="main-content"></div>
+      <div class="content" id="main-content">
+  <div style="display:grid;grid-template-columns:300px 1fr;gap:20px">
+    <div>
+      <div class="card" style="padding:24px;text-align:center">
+        <div style="width:80px;height:80px;border-radius:50%;background:rgba(59,130,246,.2);border:3px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px">🛠️</div>
+        <div style="font-size:18px;font-weight:700">Niranjan</div>
+        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-top:4px">Attender ID: A01</div>
+        <div style="margin:16px 0;font-size:28px;color:var(--accent);font-weight:700">4.6 ★</div>
+        <div style="font-size:13px;color:var(--muted)">38 total ratings</div>
+        <div style="margin-top:16px;display:flex;justify-content:center">
+          <span class="badge b-approved">Available</span>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px;padding:18px">
+        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Skills</div>
+        <span style="display:inline-block;background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:3px 10px;font-size:12px;margin:3px">Electrical</span><span style="display:inline-block;background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:3px 10px;font-size:12px;margin:3px">Plumbing</span>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px;padding:18px">
+        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Performance Stats</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div><div style="font-size:11px;color:var(--muted)">Total Jobs</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)">0</div></div>
+          <div><div style="font-size:11px;color:var(--muted)">Closed</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--green)">0</div></div>
+          <div><div style="font-size:11px;color:var(--muted)">Avg Rating</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--accent)">4.6</div></div>
+          <div><div style="font-size:11px;color:var(--muted)">Total Ratings</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)">38</div></div>
+        </div>
+      </div>
+      <div class="card" style="padding:18px">
+        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Recent Ratings</div>
+        <div style="color:var(--muted);font-size:13px">No ratings yet</div>
+      </div>
+    </div>
+  </div></div>
     </main>
   </div>
 </div>
@@ -384,7 +469,7 @@ td{padding:11px 14px;font-size:13px}
         </div>
         <div class="form-group">
           <label>Kitchen Code</label>
-          <input type="text" id="nt-kitchen" readonly>
+          <input type="text" id="nt-kitchen" readonly="">
         </div>
         <div class="form-group full">
           <label>Issue Title *</label>
@@ -396,12 +481,12 @@ td{padding:11px 14px;font-size:13px}
           <select id="nt-dept" onchange="loadSubCat()">
             <option value="">Select</option>
             <option>Carpentry</option><option>CCTV</option><option>Chiller</option>
-            <option>Civil</option><option>Cleaning & Shifting</option><option>DG</option>
+            <option>Civil</option><option>Cleaning &amp; Shifting</option><option>DG</option>
             <option>Drainage</option><option>Electrical</option><option>Electronic Service</option>
             <option>Equipments</option><option>Exhaust Fan Cleaning</option><option>Gas</option>
             <option>Internet Issue</option><option>Painting</option><option>Plumbing</option>
             <option>RO Tank Cleaning</option><option>Rodent Issue</option>
-            <option>System & Computer</option><option>Tiles</option><option>Welding</option>
+            <option>System &amp; Computer</option><option>Tiles</option><option>Welding</option>
           </select>
           <div class="err-msg" id="err-nt-dept">Required</div>
         </div>
@@ -448,10 +533,41 @@ td{padding:11px 14px;font-size:13px}
 <div class="overlay" id="modal-detail">
   <div class="modal wide">
     <div class="modal-head">
-      <div><h2 id="md-title">Ticket</h2><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px" id="md-sub"></div></div>
+      <div><h2 id="md-title">Deep Freezer Temperature Issue</h2><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px" id="md-sub">RMT-1002 · Equipments · MGP01.CHN01</div></div>
       <button class="close-x" onclick="closeModal('modal-detail')">✕</button>
     </div>
-    <div id="md-body" class="modal-body"></div>
+    <div id="md-body" class="modal-body"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)">
+    <div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Status</div><div style="font-size:13px;font-weight:600"><span class="badge b-accepted">Accepted</span></div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Priority</div><div style="font-size:13px;font-weight:600"><span class="p-dot p-high"></span>High</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Kitchen</div><div style="font-size:13px;font-weight:600"><span style="font-family:var(--mono);font-size:12px">MGP01.CHN01</span></div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Requester</div><div style="font-size:13px;font-weight:600">Priya Nair</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Raised</div><div style="font-size:13px;font-weight:600">5 Jan 2025, 08:00</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Department</div><div style="font-size:13px;font-weight:600">Equipments / Repair</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Business Impact</div><div style="font-size:13px;font-weight:600">Significant Disruption</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Quotation</div><div style="font-size:13px;font-weight:600">Not yet</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Attender</div><div style="font-size:13px;font-weight:600"><span style="font-weight:600">Yash patil</span></div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Transfer</div><div style="font-size:13px;font-weight:600"><span class="amount-pill" style="color:var(--cyan)">₹3,000</span></div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Purchase Spend</div><div style="font-size:13px;font-weight:600"><span class="amount-pill" style="color:var(--cyan)">-</span></div></div>
+  </div><div style="margin-bottom:20px"><div style="font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">Ticket Timeline</div>
+    <div class="timeline"><div class="tl-item done">
+        <div class="tl-dot">✓</div>
+        <div class="tl-body"><h4>Submitted</h4><div class="tl-time">5 Jan 2025, 08:00</div></div>
+      </div><div class="tl-item done">
+        <div class="tl-dot">✓</div>
+        <div class="tl-body"><h4>Ticket Created</h4><div class="tl-time">5 Jan 2025, 08:00</div></div>
+      </div><div class="tl-item done">
+        <div class="tl-dot">✓</div>
+        <div class="tl-body"><h4>Assigned to Attender</h4><p>Assigned to Ravi Kumar. ₹3000 transferred</p><div class="tl-time">5 Jan 2025, 09:15</div></div>
+      </div><div class="tl-item done">
+        <div class="tl-dot">✓</div>
+        <div class="tl-body"><h4>Accepted by Attender</h4><div class="tl-time">5 Jan 2025, 09:45</div></div>
+      </div><div class="tl-item active">
+        <div class="tl-dot">5</div>
+        <div class="tl-body"><h4>Attender Reached</h4><div class="tl-time">Pending</div></div>
+      </div><div class="tl-item ">
+        <div class="tl-dot">6</div>
+        <div class="tl-body"><h4>Quotation Submitted</h4><div class="tl-time">Pending</div></div>
+      </div><div class="tl-item ">
+        <div class="tl-dot">7</div>
+        <div class="tl-body"><h4>Pending Manager Approval</h4><div class="tl-time">Pending</div></div>
+      </div><div class="tl-item ">
+        <div class="tl-dot">8</div>
+        <div class="tl-body"><h4>Work Completed</h4><div class="tl-time">Pending</div></div>
+      </div><div class="tl-item ">
+        <div class="tl-dot">9</div>
+        <div class="tl-body"><h4>Closed</h4><div class="tl-time">Pending</div></div>
+      </div></div>
+  </div></div>
   </div>
 </div>
 
@@ -473,7 +589,38 @@ td{padding:11px 14px;font-size:13px}
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('modal-assign')">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmAssign()">Assign & Notify</button>
+      <button class="btn btn-primary" onclick="confirmAssign()">Assign &amp; Notify</button>
+    </div>
+  </div>
+</div>
+
+<!-- ATTENDER MAPPING -->
+<div class="overlay" id="modal-attender-mapping">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2>📍 Manage Attender Mapping</h2>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px">
+          <span id="mapping-att-name"></span> · <span id="mapping-att-id"></span>
+        </div>
+      </div>
+      <button class="close-x" onclick="closeModal('modal-attender-mapping')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="mapping-att-status" style="margin-bottom:12px"></div>
+      <div class="mapping-list" id="mapping-list"></div>
+      <div class="mapping-add-row" style="margin-top:18px">
+        <div class="form-group" style="margin:0">
+          <label>Add Kitchen / Location</label>
+          <input type="text" id="mapping-outlet-input" list="mapping-outlet-options" placeholder="Type kitchen code or location">
+          <datalist id="mapping-outlet-options"><option value="ANR01.BLR22">ANR01.BLR22</option><option value="BLD01.BLR25">BLD01.BLR25</option><option value="BMS01.BLR26">BMS01.BLR26</option><option value="BOM01.BLR04">BOM01.BLR04</option><option value="BSK01.BLR19">BSK01.BLR19</option><option value="BSN01.BLR40">BSN01.BLR40</option><option value="BTM01.BLR03">BTM01.BLR03</option><option value="CK-Corp Office">CK-Corp Office</option><option value="CK-Dispatch Section">CK-Dispatch Section</option><option value="CK-Production Section">CK-Production Section</option><option value="CK-Staff Room">CK-Staff Room</option><option value="CK-Warehouse Section">CK-Warehouse Section</option><option value="CMP01.CHN10">CMP01.CHN10</option><option value="CRN01.BLR17">CRN01.BLR17</option><option value="ECT01.BLR24">ECT01.BLR24</option><option value="FZT01.BLR20">FZT01.BLR20</option><option value="HNR01.BLR16">HNR01.BLR16</option><option value="HSR01.BLR02">HSR01.BLR02</option><option value="IND01.BLR01">IND01.BLR01</option><option value="JYN01.BLR30">JYN01.BLR30</option><option value="KDG01.BLR14">KDG01.BLR14</option><option value="KGI01.BLR43">KGI01.BLR43</option><option value="KLN01.BLR09">KLN01.BLR09</option><option value="KOR01.BLR12">KOR01.BLR12</option><option value="KPR01.BLR41">KPR01.BLR41</option><option value="MAR01.BLR05">MAR01.BLR05</option><option value="MGP01.CHN01">MGP01.CHN01</option><option value="NBR01.BLR21">NBR01.BLR21</option><option value="PGD01.CHN06">PGD01.CHN06</option><option value="PRR01.CHN04">PRR01.CHN04</option><option value="RTN01.BLR23">RTN01.BLR23</option><option value="SDP01.BLR34">SDP01.BLR34</option><option value="SGS01.BLR42">SGS01.BLR42</option><option value="SJP01.BLR08">SJP01.BLR08</option><option value="SKM01.CHN03">SKM01.CHN03</option><option value="SKN01.BLR07">SKN01.BLR07</option><option value="TCP01.BLR27">TCP01.BLR27</option><option value="TKR01.BLR29">TKR01.BLR29</option><option value="VDP01.CHN02">VDP01.CHN02</option><option value="VNR01.BLR18">VNR01.BLR18</option><option value="WFD01.BLR06">WFD01.BLR06</option><option value="WFD02.BLR13">WFD02.BLR13</option><option value="YLK01.BLR15">YLK01.BLR15</option></datalist>
+          <div class="mapping-note">Add or remove any kitchen/location here. Auto-assign uses these mappings against the ticket kitchen code.</div>
+        </div>
+        <button class="btn btn-green" onclick="addAttenderMapping()">Add</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-attender-mapping')">Close</button>
     </div>
   </div>
 </div>
@@ -524,6 +671,93 @@ td{padding:11px 14px;font-size:13px}
   </div>
 </div>
 
+<!-- ATTENDER DECISION -->
+<div class="overlay" id="modal-attender-decision">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head"><h2>⚠️ Reject / Hold Ticket</h2><button class="close-x" onclick="closeModal('modal-attender-decision')">✕</button></div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Ticket: <span id="dec-tid" style="font-family:var(--mono);color:var(--accent)"></span></div>
+      <div class="form-group">
+        <label>Reason</label>
+        <select id="dec-reason">
+          <option value="">Select reason</option>
+          <option>Out of route / location not reachable</option>
+          <option>Skill mismatch</option>
+          <option>Waiting for spare / vendor support</option>
+          <option>Need supervisor help</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Remarks</label>
+        <textarea id="dec-remarks" placeholder="Add short remarks for supervisor..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-attender-decision')">Cancel</button>
+      <button class="btn btn-red" onclick="submitAttenderDecision('reject')">Reject Ticket</button>
+      <button class="btn btn-blue" onclick="submitAttenderDecision('hold')">Hold Ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- PURCHASE MODAL -->
+<div class="overlay" id="modal-purchase">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head"><h2>🧾 Purchase Entry</h2><button class="close-x" onclick="closeModal('modal-purchase')">✕</button></div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Ticket: <span id="pur-tid" style="font-family:var(--mono);color:var(--accent)"></span></div>
+      <div id="pur-existing" style="margin-bottom:12px"></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Vendor Name *</label>
+          <input type="text" id="pur-vendor" placeholder="Vendor / shop name">
+        </div>
+        <div class="form-group">
+          <label>Bill Amount (₹) *</label>
+          <input type="number" id="pur-amount" placeholder="0.00" min="0">
+        </div>
+        <div class="form-group full">
+          <label>Purchase Remarks</label>
+          <textarea id="pur-remarks" placeholder="What was purchased and why..."></textarea>
+        </div>
+      </div>
+      <div class="capture-area" onclick="triggerCamera(activePurchaseTicketId,'purchase')" style="margin-top:8px">
+        <div class="capture-icon">📸</div>
+        <div class="capture-label">Add photo / video of bill or material</div>
+      </div>
+      <div class="preview-row" id="pur-media-prev" style="margin-top:10px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-purchase')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitPurchaseRecord()">Add Purchase</button>
+    </div>
+  </div>
+</div>
+
+<!-- ISSUE / CLOSE NOTE -->
+<div class="overlay" id="modal-ticket-note">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head"><h2 id="note-title">Ticket Note</h2><button class="close-x" onclick="closeModal('modal-ticket-note')">✕</button></div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Ticket: <span id="note-tid" style="font-family:var(--mono);color:var(--accent)"></span></div>
+      <div class="form-group">
+        <label>Remarks</label>
+        <textarea id="note-remarks" placeholder="Add remarks..."></textarea>
+      </div>
+      <div class="capture-area" onclick="triggerCamera(activeTicketId,activeTicketNoteMode)" style="margin-top:8px">
+        <div class="capture-icon">📷</div>
+        <div class="capture-label">Add multiple photos / videos</div>
+      </div>
+      <div class="preview-row" id="note-media-prev" style="margin-top:10px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-ticket-note')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitTicketNote()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- OTP VERIFY -->
 <div class="overlay" id="modal-otp">
   <div class="modal" style="max-width:400px">
@@ -535,7 +769,7 @@ td{padding:11px 14px;font-size:13px}
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('modal-otp')">Cancel</button>
-      <button class="btn btn-green" onclick="verifyOTP()">Verify & Close Ticket</button>
+      <button class="btn btn-green" onclick="verifyOTP()">Verify &amp; Close Ticket</button>
     </div>
   </div>
 </div>
@@ -602,16 +836,16 @@ const SUB_CAT = {
 };
 
 const ATTENDERS = [
-  {id:'A01',name:'Niranjan',phone:'9876543210',skills:['Electrical','Plumbing'],avgRating:4.6,totalRatings:38,active:true},
-  {id:'A02',name:'Yash patil',phone:'9876543211',skills:['Chiller','DG','Equipments'],avgRating:4.2,totalRatings:24,active:true},
-  {id:'A03',name:'Mohammed ALi',phone:'9876543212',skills:['Civil','Carpentry','Welding'],avgRating:4.8,totalRatings:51,active:true},
-  {id:'A04',name:'Arjun',phone:'9876543213',skills:['CCTV','System & Computer'],avgRating:4.0,totalRatings:19,active:true},
-  {id:'A05',name:'Aruna',phone:'9876543214',skills:['Painting','Tiles','Civil'],avgRating:4.5,totalRatings:33,active:false},
-  {id:'A06',name:'Networking vendor',phone:'9876543215',skills:['Plumbing','Drainage'],avgRating:4.3,totalRatings:27,active:true},
-  {id:'A07',name:'Philps',phone:'9876543216',skills:['Electrical','Gas'],avgRating:4.7,totalRatings:44,active:true},
-  {id:'A08',name:'Anand',phone:'9876543217',skills:['Exhaust Fan Cleaning','RO Tank Cleaning'],avgRating:4.1,totalRatings:16,active:true},
-  {id:'A09',name:'Sathis',phone:'9876543218',skills:['Rodent Issue','Cleaning & Shifting'],avgRating:3.9,totalRatings:12,active:false},
-  {id:'A10',name:'Samuel',phone:'9876543219',skills:['Electronic Service','System & Computer','Internet Issue'],avgRating:4.4,totalRatings:29,active:true},
+  {id:'A01',name:'Niranjan',phone:'9876543210',skills:['Electrical','Plumbing'],avgRating:4.6,totalRatings:38,active:true,outlets:['BSK01.BLR19','KPR01.BLR41']},
+  {id:'A02',name:'Yash patil',phone:'9876543211',skills:['Chiller','DG','Equipments'],avgRating:4.2,totalRatings:24,active:true,outlets:['HSR01.BLR02','MGP01.CHN01']},
+  {id:'A03',name:'Mohammed ALi',phone:'9876543212',skills:['Civil','Carpentry','Welding'],avgRating:4.8,totalRatings:51,active:true,outlets:['BTM01.BLR03','MAR01.BLR05']},
+  {id:'A04',name:'Arjun',phone:'9876543213',skills:['CCTV','System & Computer'],avgRating:4.0,totalRatings:19,active:true,outlets:['KDG01.BLR14','KGI01.BLR43']},
+  {id:'A05',name:'Aruna',phone:'9876543214',skills:['Painting','Tiles','Civil'],avgRating:4.5,totalRatings:33,active:false,outlets:['WFD01.BLR06','WFD02.BLR13']},
+  {id:'A06',name:'Networking vendor',phone:'9876543215',skills:['Plumbing','Drainage'],avgRating:4.3,totalRatings:27,active:true,outlets:['RTN01.BLR23','SDP01.BLR34']},
+  {id:'A07',name:'Philps',phone:'9876543216',skills:['Electrical','Gas'],avgRating:4.7,totalRatings:44,active:true,outlets:['IND01.BLR01','BLD01.BLR25']},
+  {id:'A08',name:'Anand',phone:'9876543217',skills:['Exhaust Fan Cleaning','RO Tank Cleaning'],avgRating:4.1,totalRatings:16,active:true,outlets:['SGS01.BLR42','SKM01.CHN03']},
+  {id:'A09',name:'Sathis',phone:'9876543218',skills:['Rodent Issue','Cleaning & Shifting'],avgRating:3.9,totalRatings:12,active:false,outlets:['CK-Corp Office','CK-Dispatch Section']},
+  {id:'A10',name:'Samuel',phone:'9876543219',skills:['Electronic Service','System & Computer','Internet Issue'],avgRating:4.4,totalRatings:29,active:true,outlets:['CK-Production Section','CK-Staff Room']},
 ];
 
 // App state
@@ -620,13 +854,22 @@ let ticketCounter = 1000;
 let currentUser = null; // {role, name, kitchenCode, attenderId}
 let activeTicketId = null;
 let assignSelectedAttender = null;
+let activeMappingAttenderId = null;
+let supervisorDashboardFocus = '';
+let attenderJobsFocus = '';
+let currentView = 'dashboard';
+let activeTicketNoteMode = '';
+let activePurchaseTicketId = null;
+let activeDecisionTicketId = null;
 let feedbackRating = 0;
 let mediaCaptures = {}; // ticketId -> { location, reached, fixed, purchase }
+const ATTENDER_MAPPING_STORAGE = 'rmAttenderMappings';
 
 const ROLE_LABELS = {requester:'Requester',supervisor:'RM Supervisor',manager:'RM Manager',attender:'Attender'};
 const STATUS_COLORS = {
-  'Open':'b-open','In Progress':'b-progress','Accepted':'b-accepted',
-  'Purchase Done':'b-progress','Reached':'b-accepted','Fixed':'b-progress',
+  'Open':'b-open','Assigned':'b-pending','Rejected':'b-hold','Hold':'b-hold','In Progress':'b-progress','Job Started':'b-progress',
+  'Accepted':'b-accepted','Reached':'b-accepted','Issues Identified':'b-progress',
+  'Purchase Done':'b-progress','Fixed':'b-progress',
   'Pending Finance':'b-pending','Pending Approval':'b-pending',
   'Approved':'b-approved','On Hold':'b-hold','Closed':'b-closed','Reopened':'b-hold'
 };
@@ -638,6 +881,205 @@ function genOTP(){ return String(Math.floor(1000+Math.random()*9000)); }
 function starsHtml(r,n=0){ return '★'.repeat(Math.round(r))+'☆'.repeat(5-Math.round(r))+' '+r.toFixed(1)+(n?` <span style="color:var(--muted);font-size:11px">(${n})</span>`:''); }
 function now(){ return new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
 function tid(){ return 'RMT-'+(++ticketCounter); }
+function getAttenderName(attenderId){
+  const att = ATTENDERS.find(a=>a.id===attenderId);
+  return att ? `${att.name} (${att.id})` : 'Unassigned';
+}
+function getActiveTicketCount(attenderId){
+  return tickets.filter(t=>t.attenderId===attenderId&&!['Closed','Rejected'].includes(t.status)).length;
+}
+function matchesOutletMapping(mappedOutlet, kitchenCode){
+  return String(mappedOutlet||'').trim().toUpperCase()===String(kitchenCode||'').trim().toUpperCase();
+}
+function findAutoAssignedAttender(kitchenCode){
+  const candidates=ATTENDERS.filter(a=>a.active&&Array.isArray(a.outlets)&&a.outlets.some(o=>matchesOutletMapping(o,kitchenCode)));
+  if(!candidates.length) return null;
+  return candidates
+    .slice()
+    .sort((a,b)=>getActiveTicketCount(a.id)-getActiveTicketCount(b.id)||b.avgRating-a.avgRating||a.id.localeCompare(b.id))[0];
+}
+function isTicketClosed(t){
+  return ['Closed'].includes(t?.status);
+}
+function isTicketOpenish(t){
+  return ['Open','Assigned','Accepted','Hold','In Progress','Job Started','Reached','Issues Identified','Purchase Done','Fixed','Reopened'].includes(t?.status);
+}
+function getTicketPurchaseTotal(ticket){
+  const stored = (ticket?.purchaseRecords||[]).reduce((sum,p)=>sum+(parseFloat(p.amount)||0),0);
+  const legacy = parseFloat(ticket?.purchaseAmount)||0;
+  return stored + legacy;
+}
+function ensureTicketPurchaseRecords(ticket){
+  if(!ticket.purchaseRecords) ticket.purchaseRecords = [];
+  return ticket.purchaseRecords;
+}
+function getTicketSearchText(t){
+  const att = getAttenderName(t.attenderId);
+  const totalSpend = getTicketPurchaseTotal(t);
+  return [
+    t.id,t.title,t.kitchenCode,t.dept,t.subcat,t.priority,t.status,t.requesterName,att,
+    t.vendor,t.cashflow,t.impact,t.rejectReason,t.holdReason,t.rejectionReason,t.holdReason,
+    t.closureNotes,t.issueNotes,t.notes,t.remark,t.purchaseVendor, String(totalSpend)
+  ].join(' ').toLowerCase();
+}
+function filterTicketList(list, filters={}){
+  const q = String(filters.query||'').trim().toLowerCase();
+  const status = String(filters.status||'').trim().toLowerCase();
+  const attender = String(filters.attender||'').trim().toLowerCase();
+  const priority = String(filters.priority||'').trim().toLowerCase();
+  return (list||[]).filter(t=>{
+    if(status && String(t.status||'').toLowerCase()!==status) return false;
+    if(attender){
+      const att = ATTENDERS.find(a=>a.id===t.attenderId);
+      const attText = [t.attenderId, att?.name||''].join(' ').toLowerCase();
+      if(!attText.includes(attender)) return false;
+    }
+    if(priority && String(t.priority||'').toLowerCase()!==priority) return false;
+    if(q && !getTicketSearchText(t).includes(q)) return false;
+    return true;
+  });
+}
+function setSupervisorDashboardFocus(status){
+  supervisorDashboardFocus = status || '';
+  navigateTo('dashboard');
+}
+function setAttenderJobsFocus(status){
+  attenderJobsFocus = status || '';
+  navigateTo('my-jobs');
+}
+function toggleDrawer(force){
+  const open = typeof force === 'boolean' ? force : !document.body.classList.contains('drawer-open');
+  document.body.classList.toggle('drawer-open', open);
+}
+function renderSidebarSummary(){
+  if(!currentUser) return '';
+  const pageLabel = ({
+    dashboard:'Dashboard','my-tickets':'My Tickets','all-tickets':'All Tickets','assign-queue':'Assign Queue',
+    attenders:'Attender Team',finance:'Finance',transfers:'Transfers',approvals:'Approvals','my-jobs':'My Jobs',
+    history:'Job History',profile:'My Profile'
+  }[currentView]||currentView);
+  const counts = {
+    requester: [
+      `Active ${tickets.filter(t=>t.kitchenCode===currentUser.kitchenCode&&t.status!=='Closed').length}`,
+      `Closed ${tickets.filter(t=>t.kitchenCode===currentUser.kitchenCode&&t.status==='Closed').length}`
+    ],
+    supervisor: [
+      `Open ${tickets.filter(t=>t.status==='Open').length}`,
+      `Unassigned ${tickets.filter(t=>(!t.attenderId||t.status==='Rejected')&&t.status!=='Closed').length}`,
+      `In Progress ${tickets.filter(t=>['Accepted','Job Started','Reached','Issues Identified','Purchase Done','Fixed'].includes(t.status)).length}`,
+      `Finance ${tickets.filter(t=>['Pending Finance','Pending Approval'].includes(t.status)).length}`
+    ],
+    manager: [
+      `Approvals ${tickets.filter(t=>t.status==='Pending Approval').length}`,
+      `Closed ${tickets.filter(t=>t.status==='Closed').length}`,
+      `Spend ₹${tickets.filter(t=>t.finalAmount).reduce((s,t)=>s+(t.finalAmount||0),0).toLocaleString('en-IN')}`
+    ],
+    attender: [
+      `Assigned ${tickets.filter(t=>t.attenderId===currentUser.attenderId&&t.status==='Assigned').length}`,
+      `Started ${tickets.filter(t=>t.attenderId===currentUser.attenderId&&['Accepted','Job Started','In Progress'].includes(t.status)).length}`,
+      `Reached ${tickets.filter(t=>t.attenderId===currentUser.attenderId&&t.status==='Reached').length}`,
+      `Closed ${tickets.filter(t=>t.attenderId===currentUser.attenderId&&t.status==='Closed').length}`,
+      `Spend ₹${tickets.filter(t=>t.attenderId===currentUser.attenderId).reduce((s,t)=>s+getTicketPurchaseTotal(t),0).toLocaleString('en-IN')}`
+    ]
+  }[currentUser.role] || [];
+  return `
+    <div class="sum-title">Quick View</div>
+    <div class="sum-meta"><span>${pageLabel}</span></div>
+    <div class="sum-meta" style="margin-top:8px">${counts.map(c=>`<div>${c}</div>`).join('')}</div>
+  `;
+}
+function syncSidebarSummary(){
+  const el=document.getElementById('sidebar-summary');
+  if(el) el.innerHTML=renderSidebarSummary();
+}
+function normalizeOutletName(value){
+  return String(value||'').trim();
+}
+function uniqueOutlets(list){
+  return [...new Set((list||[]).map(normalizeOutletName).filter(Boolean))];
+}
+function encodeMappingValue(value){
+  return encodeURIComponent(String(value||''));
+}
+function loadAttenderMappings(){
+  try{
+    const raw = localStorage.getItem(ATTENDER_MAPPING_STORAGE);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    ATTENDERS.forEach(att=>{
+      if(Array.isArray(saved?.[att.id])){
+        att.outlets = uniqueOutlets(saved[att.id]);
+      }
+    });
+  }catch(e){
+    localStorage.removeItem(ATTENDER_MAPPING_STORAGE);
+  }
+}
+function saveAttenderMappings(){
+  const payload = {};
+  ATTENDERS.forEach(att=>{
+    payload[att.id] = uniqueOutlets(att.outlets);
+  });
+  localStorage.setItem(ATTENDER_MAPPING_STORAGE, JSON.stringify(payload));
+}
+function getAttenderById(attenderId){
+  return ATTENDERS.find(a=>a.id===attenderId)||null;
+}
+function openAttenderMappingModal(attenderId){
+  if(currentUser.role!=='supervisor'){
+    toast('Only RM supervisors can manage mappings','red');
+    return;
+  }
+  activeMappingAttenderId = attenderId;
+  renderAttenderMappingModal();
+  openModal('modal-attender-mapping');
+}
+function addAttenderMapping(){
+  const att = getAttenderById(activeMappingAttenderId);
+  if(!att) return;
+  const input = document.getElementById('mapping-outlet-input');
+  const outlet = normalizeOutletName(input?.value);
+  if(!outlet){
+    toast('Enter a kitchen or location','red');
+    return;
+  }
+  if((att.outlets||[]).some(o=>matchesOutletMapping(o,outlet))){
+    toast('This location is already mapped','yellow');
+    return;
+  }
+  att.outlets = uniqueOutlets([...(att.outlets||[]), outlet]);
+  saveAttenderMappings();
+  if(input) input.value = '';
+  renderAttenderMappingModal();
+  buildNav();
+  navigateTo('attenders');
+  toast(`Mapped ${outlet} to ${att.name}`,'green');
+}
+function removeAttenderMapping(outlet){
+  const att = getAttenderById(activeMappingAttenderId);
+  if(!att) return;
+  att.outlets = uniqueOutlets((att.outlets||[]).filter(o=>!matchesOutletMapping(o,outlet)));
+  saveAttenderMappings();
+  renderAttenderMappingModal();
+  buildNav();
+  navigateTo('attenders');
+  toast(`Removed ${outlet} from ${att.name}`,'yellow');
+}
+function renderAttenderMappingModal(){
+  const att = getAttenderById(activeMappingAttenderId);
+  if(!att) return;
+  document.getElementById('mapping-att-name').textContent = att.name;
+  document.getElementById('mapping-att-id').textContent = att.id;
+  document.getElementById('mapping-att-status').innerHTML = `<span class="badge ${att.active?'b-approved':'b-hold'}">${att.active?'Active':'Off Duty'}</span>`;
+  document.getElementById('mapping-list').innerHTML = (att.outlets||[]).length
+    ? (att.outlets||[]).map(outlet=>`
+        <div class="mapping-chip">
+          <span>${outlet}</span>
+          <button type="button" data-outlet="${encodeMappingValue(outlet)}" onclick="removeAttenderMapping(decodeURIComponent(this.dataset.outlet))">✕</button>
+        </div>
+      `).join('')
+    : '<div class="mapping-note">No kitchens mapped yet. Add one below to enable auto assignment.</div>';
+}
 
 // ─── SEED DATA ───────────────────────────────────────
 function seedData(){
@@ -767,6 +1209,7 @@ function doLogin(){
 function logout(){
   localStorage.removeItem('rmUser');
   currentUser=null; activeTicketId=null;
+  toggleDrawer(false);
   document.getElementById('screen-login').classList.add('active');
   document.getElementById('screen-app').classList.remove('active');
   document.getElementById('login-pass').value='';
@@ -835,17 +1278,20 @@ function buildNav(){
       ${badge>0?`<span class="nav-badge ${item.badge==='approvals'?'':'amber'}">${badge}</span>`:''}
     </div>`;
   });
+  syncSidebarSummary();
 }
 
 function getBadgeCount(type){
   if(type==='open') return tickets.filter(t=>t.status==='Open').length;
-  if(type==='unassigned') return tickets.filter(t=>!t.attenderId&&t.status!=='Closed').length;
+  if(type==='unassigned') return tickets.filter(t=>(!t.attenderId||t.status==='Rejected')&&t.status!=='Closed').length;
   if(type==='approvals') return tickets.filter(t=>t.status==='Pending Approval').length;
-  if(type==='active') return tickets.filter(t=>t.attenderId===currentUser.attenderId&&!['Closed'].includes(t.status)).length;
+  if(type==='active') return tickets.filter(t=>t.attenderId===currentUser.attenderId&&!['Closed','Rejected'].includes(t.status)).length;
   return 0;
 }
 
 function navigateTo(view){
+  currentView = view;
+  toggleDrawer(false);
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   const el=document.getElementById('nav-'+view); if(el) el.classList.add('active');
   document.getElementById('page-title').textContent=({
@@ -854,6 +1300,7 @@ function navigateTo(view){
     approvals:'Approvals','my-jobs':'My Jobs',history:'Job History',profile:'My Profile'
   }[view]||view);
   renderView(view);
+  syncSidebarSummary();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -916,53 +1363,81 @@ function renderMyTickets(){
 // ═══════════════════════════════════════════════════════
 function renderSupervisorDashboard(){
   const open=tickets.filter(t=>t.status==='Open').length;
-  const unassigned=tickets.filter(t=>!t.attenderId&&t.status!=='Closed').length;
+  const unassigned=tickets.filter(t=>(!t.attenderId||t.status==='Rejected')&&t.status!=='Closed').length;
   const inprog=tickets.filter(t=>['Accepted','Reached','Fixed','Purchase Done'].includes(t.status)).length;
   const finpend=tickets.filter(t=>t.status==='Pending Finance').length;
+  const focusMap = {
+    open: tickets.filter(t=>['Open','Reopened'].includes(t.status)),
+    unassigned: tickets.filter(t=>(!t.attenderId||t.status==='Rejected'||t.status==='Hold')&&t.status!=='Closed'),
+    inprog: tickets.filter(t=>['Accepted','Job Started','In Progress','Reached','Issues Identified','Purchase Done','Fixed'].includes(t.status)),
+    finance: tickets.filter(t=>['Pending Finance','Pending Approval'].includes(t.status)),
+    all: tickets.slice()
+  };
+  const focusKey = supervisorDashboardFocus || 'all';
+  const focusTickets = focusMap[focusKey] || focusMap.all;
+  const focusTitle = supervisorDashboardFocus ? ({
+    open:'Open tickets',
+    unassigned:'Needs assignment',
+    inprog:'In progress',
+    finance:'Finance queue',
+    all:'All tickets'
+  }[focusKey] || 'Selected tickets') : 'All tickets';
   return `
   <div class="stats-grid">
-    <div class="stat-card" style="--c:var(--blue)"><div class="stat-label">Open</div><div class="stat-val">${open}</div><div class="stat-desc">Need assignment</div></div>
-    <div class="stat-card" style="--c:var(--red)"><div class="stat-label">Unassigned</div><div class="stat-val">${unassigned}</div><div class="stat-desc">Action required</div></div>
-    <div class="stat-card" style="--c:var(--purple)"><div class="stat-label">In Progress</div><div class="stat-val">${inprog}</div><div class="stat-desc">Attender active</div></div>
-    <div class="stat-card" style="--c:var(--accent)"><div class="stat-label">Finance Queue</div><div class="stat-val">${finpend}</div><div class="stat-desc">Pending review</div></div>
+    <div class="stat-card" style="--c:var(--blue);cursor:pointer" onclick="setSupervisorDashboardFocus('open')"><div class="stat-label">Open</div><div class="stat-val">${open}</div><div class="stat-desc">Need assignment</div></div>
+    <div class="stat-card" style="--c:var(--red);cursor:pointer" onclick="setSupervisorDashboardFocus('unassigned')"><div class="stat-label">Unassigned</div><div class="stat-val">${unassigned}</div><div class="stat-desc">Action required</div></div>
+    <div class="stat-card" style="--c:var(--purple);cursor:pointer" onclick="setSupervisorDashboardFocus('inprog')"><div class="stat-label">In Progress</div><div class="stat-val">${inprog}</div><div class="stat-desc">Attender active</div></div>
+    <div class="stat-card" style="--c:var(--accent);cursor:pointer" onclick="setSupervisorDashboardFocus('finance')"><div class="stat-label">Finance Queue</div><div class="stat-val">${finpend}</div><div class="stat-desc">Pending review</div></div>
   </div>
   <div class="card">
-    <div class="card-header"><h2>⚡ Unassigned — Needs Action</h2></div>
-    ${renderTicketTable(tickets.filter(t=>!t.attenderId&&!['Closed'].includes(t.status)),false,true)}
+    <div class="card-header">
+      <h2>⚡ ${focusTitle}</h2>
+      <button class="btn btn-outline btn-sm" onclick="setSupervisorDashboardFocus('')">Reset</button>
+    </div>
+    ${renderTicketTable(focusTickets,false,true,true,true)}
   </div>`;
 }
 
 function renderAssignQueue(){
-  const q=tickets.filter(t=>!t.attenderId&&!['Closed'].includes(t.status));
-  return `<div class="card"><div class="card-header"><h2>Assignment Queue</h2><span style="font-size:12px;color:var(--muted);font-family:var(--mono)">${q.length} unassigned</span></div>${renderTicketTable(q,false,true)}</div>`;
+  const q=tickets.filter(t=>(!t.attenderId||t.status==='Rejected')&&!['Closed'].includes(t.status));
+  return `<div class="card"><div class="card-header"><h2>Assignment Queue</h2><span style="font-size:12px;color:var(--muted);font-family:var(--mono)">${q.length} unassigned</span></div>${renderTicketTable(q,false,true,true)}</div>`;
 }
 
 function renderAllTickets(){
+  const attenderOptions = ATTENDERS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
   return `
   <div class="search-row">
     <input type="text" placeholder="🔍 Search by ID, title, kitchen…" id="search-q" oninput="filterAllTickets()">
     <select id="filter-st" onchange="filterAllTickets()">
       <option value="">All Status</option>
-      <option>Open</option><option>Accepted</option><option>Reached</option><option>Fixed</option>
-      <option>Pending Finance</option><option>Pending Approval</option><option>Approved</option><option>Closed</option>
+      <option>Open</option><option>Assigned</option><option>Accepted</option><option>Job Started</option>
+      <option>Reached</option><option>Issues Identified</option><option>Purchase Done</option><option>Fixed</option>
+      <option>Rejected</option><option>Hold</option><option>Pending Finance</option><option>Pending Approval</option>
+      <option>Approved</option><option>Closed</option>
+    </select>
+    <select id="filter-att" onchange="filterAllTickets()">
+      <option value="">All Attenders</option>
+      ${attenderOptions}
+    </select>
+    <select id="filter-pri" onchange="filterAllTickets()">
+      <option value="">All Priorities</option>
+      <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
     </select>
   </div>
   <div class="card" id="all-tickets-card">
     <div class="card-header"><h2>All Tickets</h2><span style="font-size:12px;color:var(--muted);font-family:var(--mono)" id="at-count">${tickets.length} tickets</span></div>
-    <div id="at-table">${renderTicketTable(tickets,false,currentUser.role==='supervisor')}</div>
+    <div id="at-table">${renderTicketTable(tickets,false,currentUser.role==='supervisor',true,true)}</div>
   </div>`;
 }
 
 function filterAllTickets(){
   const q=(document.getElementById('search-q')?.value||'').toLowerCase();
   const st=document.getElementById('filter-st')?.value||'';
-  const filtered=tickets.filter(t=>{
-    if(st&&t.status!==st) return false;
-    if(q&&!t.title.toLowerCase().includes(q)&&!t.id.toLowerCase().includes(q)&&!(t.kitchenCode||'').toLowerCase().includes(q)) return false;
-    return true;
-  });
+  const att=document.getElementById('filter-att')?.value||'';
+  const pri=document.getElementById('filter-pri')?.value||'';
+  const filtered=filterTicketList(tickets,{query:q,status:st,attender:att,priority:pri});
   document.getElementById('at-count').textContent=filtered.length+' tickets';
-  document.getElementById('at-table').innerHTML=renderTicketTable(filtered,false,currentUser.role==='supervisor');
+  document.getElementById('at-table').innerHTML=renderTicketTable(filtered,false,currentUser.role==='supervisor',true,true);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -988,10 +1463,11 @@ function renderApprovals(){
   if(!app.length) return `<div class="card"><div class="card-header"><h2>Pending Approvals</h2></div><div class="empty-state"><div class="ei">✅</div><p>No pending approvals</p></div></div>`;
   return `<div class="card">
     <div class="card-header"><h2>Pending Approvals</h2><span style="font-size:12px;color:var(--red);font-family:var(--mono)">${app.length} awaiting decision</span></div>
-    <table><thead><tr><th>Ticket ID</th><th>Title</th><th>Kitchen</th><th>Quotation</th><th>Cashflow</th><th>Vendor</th><th>Action</th></tr></thead>
+    <table><thead><tr><th>Ticket ID</th><th>Title</th><th>Kitchen</th><th>Attender</th><th>Quotation</th><th>Cashflow</th><th>Vendor</th><th>Action</th></tr></thead>
     <tbody>${app.map(t=>`<tr onclick="openDetail('${t.id}')">
       <td class="tid">${t.id}</td><td>${t.title}</td>
       <td style="font-size:12px;font-family:var(--mono)">${t.kitchenCode}</td>
+      <td style="font-size:12px">${getAttenderName(t.attenderId)}</td>
       <td class="amount-pill">${fmtAmt(t.quotation)}</td>
       <td><span class="badge ${t.cashflow==='High'||t.cashflow==='Critical'?'b-hold':'b-approved'}">${t.cashflow||'N/A'}</span></td>
       <td style="font-size:12px">${t.vendor||'-'}</td>
@@ -1007,36 +1483,97 @@ function renderApprovals(){
 // ═══════════════════════════════════════════════════════
 function renderAttenderDashboard(){
   const myJobs=tickets.filter(t=>t.attenderId===currentUser.attenderId);
-  const active=myJobs.filter(t=>!['Closed'].includes(t.status)).length;
-  const closed=myJobs.filter(t=>t.status==='Closed').length;
   const att=ATTENDERS.find(a=>a.id===currentUser.attenderId)||{};
+  const buckets={
+    assigned: myJobs.filter(t=>t.status==='Assigned').length,
+    started: myJobs.filter(t=>['Accepted','Job Started','In Progress'].includes(t.status)).length,
+    reached: myJobs.filter(t=>t.status==='Reached').length,
+    issues: myJobs.filter(t=>t.status==='Issues Identified').length,
+    purchase: myJobs.filter(t=>t.status==='Purchase Done').length,
+    closed: myJobs.filter(t=>t.status==='Closed').length,
+    total: myJobs.length,
+  };
+  const focusMap={
+    all: myJobs,
+    assigned: myJobs.filter(t=>t.status==='Assigned'),
+    started: myJobs.filter(t=>['Accepted','Job Started','In Progress'].includes(t.status)),
+    reached: myJobs.filter(t=>t.status==='Reached'),
+    issues: myJobs.filter(t=>t.status==='Issues Identified'),
+    purchase: myJobs.filter(t=>t.status==='Purchase Done'),
+    closed: myJobs.filter(t=>t.status==='Closed'),
+  };
+  const focusKey=attenderJobsFocus||'all';
+  const focusJobs=focusMap[focusKey]||focusMap.all;
+  const totalSpend=myJobs.reduce((s,t)=>s+getTicketPurchaseTotal(t),0);
   return `
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px">
-    <div class="stat-card" style="--c:var(--blue)"><div class="stat-label">Active Jobs</div><div class="stat-val">${active}</div><div class="stat-desc">Assigned to you</div></div>
-    <div class="stat-card" style="--c:var(--green)"><div class="stat-label">Completed</div><div class="stat-val">${closed}</div><div class="stat-desc">Jobs closed</div></div>
-    <div class="stat-card" style="--c:var(--accent)"><div class="stat-label">My Rating</div><div class="stat-val" style="font-size:18px;margin-top:8px;color:var(--accent)">${att.avgRating||'-'}★</div><div class="stat-desc">${att.totalRatings||0} ratings</div></div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px">
+    <div class="stat-card" style="--c:var(--blue);cursor:pointer" onclick="setAttenderJobsFocus('assigned')"><div class="stat-label">Assigned</div><div class="stat-val">${buckets.assigned}</div><div class="stat-desc">Awaiting action</div></div>
+    <div class="stat-card" style="--c:var(--green);cursor:pointer" onclick="setAttenderJobsFocus('started')"><div class="stat-label">In Transit</div><div class="stat-val">${buckets.started}</div><div class="stat-desc">Started / moving</div></div>
+    <div class="stat-card" style="--c:var(--purple);cursor:pointer" onclick="setAttenderJobsFocus('reached')"><div class="stat-label">Reached</div><div class="stat-val">${buckets.reached}</div><div class="stat-desc">At location</div></div>
+    <div class="stat-card" style="--c:var(--accent);cursor:pointer" onclick="setAttenderJobsFocus('closed')"><div class="stat-label">Completed</div><div class="stat-val">${buckets.closed}</div><div class="stat-desc">Jobs closed</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+    <div class="stat-card" style="--c:var(--red);cursor:pointer" onclick="setAttenderJobsFocus('issues')"><div class="stat-label">Issues</div><div class="stat-val">${buckets.issues}</div><div class="stat-desc">Needs remarks</div></div>
+    <div class="stat-card" style="--c:var(--green);cursor:pointer" onclick="setAttenderJobsFocus('purchase')"><div class="stat-label">Purchases</div><div class="stat-val">₹${totalSpend.toLocaleString('en-IN')}</div><div class="stat-desc">Total spend</div></div>
+    <div class="stat-card" style="--c:var(--cyan);cursor:pointer" onclick="setAttenderJobsFocus('all')"><div class="stat-label">My Rating</div><div class="stat-val" style="font-size:18px;margin-top:8px;color:var(--accent)">${att.avgRating||'-'}★</div><div class="stat-desc">${att.totalRatings||0} ratings</div></div>
+    <div class="stat-card" style="--c:var(--blue);cursor:pointer" onclick="setAttenderJobsFocus('all')"><div class="stat-label">Total Jobs</div><div class="stat-val">${buckets.total}</div><div class="stat-desc">Assigned tickets</div></div>
   </div>
   <div class="card">
-    <div class="card-header"><h2>Active Jobs</h2></div>
-    ${renderMyJobs(true)}
+    <div class="card-header"><h2>Active Jobs</h2><button class="btn btn-outline btn-sm" onclick="setAttenderJobsFocus('')">Reset</button></div>
+    ${renderTicketTable(focusJobs,false,false,true,true)}
   </div>`;
 }
 
 function renderMyJobs(embedded=false){
-  const myJobs=tickets.filter(t=>t.attenderId===currentUser.attenderId&&!['Closed'].includes(t.status));
-  if(!myJobs.length) return `<div class="empty-state"><div class="ei">🎉</div><p>No active jobs. All caught up!</p></div>`;
-  const rows=myJobs.map(t=>`<tr onclick="openAttenderUpdate('${t.id}')">
+  const myJobs=tickets.filter(t=>t.attenderId===currentUser.attenderId&&!['Closed','Rejected'].includes(t.status));
+  const focusMap={
+    all: myJobs,
+    assigned: myJobs.filter(t=>t.status==='Assigned'),
+    started: myJobs.filter(t=>['Accepted','Job Started','In Progress'].includes(t.status)),
+    reached: myJobs.filter(t=>t.status==='Reached'),
+    issues: myJobs.filter(t=>t.status==='Issues Identified'),
+    purchase: myJobs.filter(t=>t.status==='Purchase Done'),
+    closed: myJobs.filter(t=>t.status==='Closed'),
+  };
+  const focusKey=attenderJobsFocus||'all';
+  const focusJobs=focusMap[focusKey]||focusMap.all;
+  const totalSpend=myJobs.reduce((s,t)=>s+getTicketPurchaseTotal(t),0);
+  if(!focusJobs.length) return `<div class="empty-state"><div class="ei">🎉</div><p>No jobs in this view. Try a different status card.</p></div>`;
+  const rows=focusJobs.map(t=>`<tr onclick="openAttenderUpdate('${t.id}')">
     <td class="tid">${t.id}</td>
     <td>${t.title}</td>
     <td style="font-size:12px;font-family:var(--mono)">${t.kitchenCode}</td>
     <td>${t.priority?priDot(t.priority):'—'}</td>
     <td>${statusBadge(t.status)}</td>
+    <td class="amount-pill" style="color:var(--cyan)">${fmtAmt(getTicketPurchaseTotal(t))}</td>
     <td>${t.transferAmount?`<span class="amount-pill">${fmtAmt(t.transferAmount)}</span>`:'-'}</td>
-    <td onclick="event.stopPropagation()"><button class="btn btn-primary btn-sm" onclick="openAttenderUpdate('${t.id}')">Update</button></td>
+    <td onclick="event.stopPropagation()">
+      ${t.status==='Assigned'
+        ? `<button class="btn btn-green btn-sm" onclick="attenderAccept('${t.id}')">Accept</button>
+           <button class="btn btn-outline btn-sm" onclick="openAttenderDecision('${t.id}')">Reject / Hold</button>`
+        : t.status==='Accepted'
+          ? `<button class="btn btn-green btn-sm" onclick="attenderStartJourney('${t.id}')">Job Started</button>
+             <button class="btn btn-outline btn-sm" onclick="openPurchaseModal('${t.id}')">Purchase</button>`
+          : ['Job Started','In Progress'].includes(t.status)
+            ? `<button class="btn btn-blue btn-sm" onclick="attenderMarkReached('${t.id}')">Reached</button>
+               <button class="btn btn-outline btn-sm" onclick="openPurchaseModal('${t.id}')">Purchase</button>`
+            : t.status==='Reached'
+              ? `<button class="btn btn-primary btn-sm" onclick="openTicketNoteModal('${t.id}','issue')">Issues</button>
+                 <button class="btn btn-outline btn-sm" onclick="openPurchaseModal('${t.id}')">Purchase</button>
+                 <button class="btn btn-green btn-sm" onclick="openTicketNoteModal('${t.id}','close')">Close</button>`
+              : `<button class="btn btn-primary btn-sm" onclick="openAttenderUpdate('${t.id}')">Update</button>
+                 <button class="btn btn-outline btn-sm" onclick="openPurchaseModal('${t.id}')">Purchase</button>`}
+    </td>
   </tr>`).join('');
-  const table=`<table><thead><tr><th>ID</th><th>Title</th><th>Kitchen</th><th>Priority</th><th>Status</th><th>Transfer</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+  const table=`<table><thead><tr><th>ID</th><th>Title</th><th>Kitchen</th><th>Priority</th><th>Status</th><th>Spend</th><th>Transfer</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
   if(embedded) return table;
-  return `<div class="card"><div class="card-header"><h2>Active Jobs</h2></div>${table}</div>`;
+  return `<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+    <div class="stat-card" style="--c:var(--blue);cursor:pointer" onclick="setAttenderJobsFocus('assigned')"><div class="stat-label">Assigned</div><div class="stat-val">${myJobs.filter(j=>j.status==='Assigned').length}</div></div>
+    <div class="stat-card" style="--c:var(--green);cursor:pointer" onclick="setAttenderJobsFocus('started')"><div class="stat-label">Started</div><div class="stat-val">${myJobs.filter(j=>['Accepted','Job Started','In Progress'].includes(j.status)).length}</div></div>
+    <div class="stat-card" style="--c:var(--purple);cursor:pointer" onclick="setAttenderJobsFocus('issues')"><div class="stat-label">Issues</div><div class="stat-val">${myJobs.filter(j=>j.status==='Issues Identified').length}</div></div>
+    <div class="stat-card" style="--c:var(--accent);cursor:pointer" onclick="setAttenderJobsFocus('closed')"><div class="stat-label">Closed</div><div class="stat-val">${myJobs.filter(j=>j.status==='Closed').length}</div></div>
+  </div>
+  <div class="card"><div class="card-header"><h2>Active Jobs</h2><span style="font-size:12px;color:var(--muted);font-family:var(--mono)">${focusJobs.length} shown · ₹${totalSpend.toLocaleString('en-IN')} spent</span></div>${table}</div>`;
 }
 
 function renderJobHistory(){
@@ -1113,10 +1650,16 @@ function renderAttenders(){
             <span class="att-count">${a.avgRating.toFixed(1)} (${a.totalRatings} ratings)</span>
           </div>
           <div style="font-size:11px;color:var(--muted);margin-top:4px">${a.skills.join(', ')}</div>
+          <div class="mapping-list" style="margin-top:10px">
+            ${(a.outlets||[]).length
+              ? (a.outlets||[]).map(outlet=>`<span class="mapping-chip"><span>${outlet}</span></span>`).join('')
+              : '<span class="mapping-note">No mapped kitchens</span>'}
+          </div>
         </div>
-        <div class="att-status">
+        <div class="att-status" style="align-items:flex-end">
           <div class="att-online" style="background:${a.active?'var(--green)':'var(--muted)'};box-shadow:${a.active?'0 0 6px var(--green)':'none'}"></div>
           <span style="font-size:11px;color:var(--muted)">${a.active?'Active':'Off'}</span>
+          ${currentUser.role==='supervisor'?`<button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="openAttenderMappingModal('${a.id}')">Edit Mapping</button>`:''}
         </div>
       </div>`).join('')}
   </div>`;
@@ -1138,15 +1681,16 @@ function renderFinance(){
   </div>
   <div class="card">
     <div class="card-header"><h2>Finance Tracker</h2></div>
-    <table><thead><tr><th>Ticket ID</th><th>Title</th><th>Kitchen</th><th>Quotation</th><th>Status</th><th>Cashflow</th><th>Final Amount</th></tr></thead>
+    <table><thead><tr><th>Ticket ID</th><th>Title</th><th>Kitchen</th><th>Attender</th><th>Quotation</th><th>Status</th><th>Cashflow</th><th>Final Amount</th></tr></thead>
     <tbody>${finT.map(t=>`<tr onclick="openDetail('${t.id}')">
       <td class="tid">${t.id}</td><td>${t.title}</td>
       <td style="font-size:12px;font-family:var(--mono)">${t.kitchenCode}</td>
+      <td style="font-size:12px">${getAttenderName(t.attenderId)}</td>
       <td class="amount-pill">${fmtAmt(t.quotation)}</td>
       <td>${statusBadge(t.status)}</td>
       <td><span class="badge ${t.cashflow==='High'||t.cashflow==='Critical'?'b-hold':'b-approved'}">${t.cashflow||'N/A'}</span></td>
       <td class="amount-pill" style="color:var(--green)">${fmtAmt(t.finalAmount)}</td>
-    </tr>`).join('')||'<tr class="empty-row"><td colspan="7"><div class="empty-state"><div class="ei">💰</div><p>No finance records</p></div></td></tr>'}</tbody></table>
+    </tr>`).join('')||'<tr class="empty-row"><td colspan="8"><div class="empty-state"><div class="ei">💰</div><p>No finance records</p></div></td></tr>'}</tbody></table>
   </div>`;
 }
 
@@ -1172,24 +1716,27 @@ function renderTransfers(){
 // ═══════════════════════════════════════════════════════
 //  TICKET TABLE HELPER
 // ═══════════════════════════════════════════════════════
-function renderTicketTable(list,showOTP=false,showAssign=false){
+function renderTicketTable(list,showOTP=false,showAssign=false,showAttender=false,showSpend=false){
   if(!list.length) return `<div class="empty-state"><div class="ei">🎫</div><p>No tickets found</p></div>`;
   return `<table><thead><tr>
-    <th>ID</th><th>Title</th><th>Kitchen</th><th>Dept</th><th>Priority</th><th>Status</th><th>Date</th>
+    <th>ID</th><th>Title</th><th>Kitchen</th>${showAttender?'<th>Attender</th>':''}${showSpend?'<th>Spend</th>':''}<th>Dept</th><th>Priority</th><th>Status</th><th>Date</th>
     ${showOTP?'<th>OTP</th>':''}
     ${showAssign?'<th>Action</th>':''}
   </tr></thead><tbody>${list.map(t=>`<tr onclick="openDetail('${t.id}')">
     <td class="tid">${t.id}</td>
     <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</td>
     <td style="font-size:11px;font-family:var(--mono)">${t.kitchenCode}</td>
+    ${showAttender?`<td style="font-size:12px">${getAttenderName(t.attenderId)}</td>`:''}
+    ${showSpend?`<td class="amount-pill" style="color:var(--cyan)">${fmtAmt(getTicketPurchaseTotal(t))}</td>`:''}
     <td style="font-size:12px">${t.dept}</td>
     <td>${priDot(t.priority)}</td>
     <td>${statusBadge(t.status)}</td>
     <td style="font-size:11px;color:var(--muted)">${t.date}</td>
     ${showOTP?`<td><span class="otp-display" style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--accent);letter-spacing:4px">${t.otp||'—'}</span></td>`:''}
     ${showAssign?`<td onclick="event.stopPropagation()">
-      ${!t.attenderId?`<button class="btn btn-primary btn-sm" onclick="openAssignModal('${t.id}')">Assign</button>`
-        :`<button class="btn btn-outline btn-sm" onclick="openAssignModal('${t.id}')">Re-assign</button>`}
+      ${t.status==='Closed' ? `<span class="badge b-closed">Closed</span>` : (!t.attenderId
+        ? `<button class="btn btn-primary btn-sm" onclick="openAssignModal('${t.id}')">Assign</button>`
+        : `<button class="btn btn-outline btn-sm" onclick="openAssignModal('${t.id}')">Re-assign</button>`)}
     </td>`:''}
   </tr>`).join('')}</tbody></table>`;
 }
@@ -1218,6 +1765,7 @@ function openDetail(id){
     {k:'Quotation',v:t.quotation?`<span class="amount-pill">${fmtAmt(t.quotation)}</span>`:'Not yet'},
     {k:'Attender',v:att?`<span style="font-weight:600">${att.name}</span>`:'Unassigned'},
     {k:'Transfer',v:t.transferAmount?`<span class="amount-pill" style="color:var(--cyan)">${fmtAmt(t.transferAmount)}</span>`:'None'},
+    {k:'Purchase Spend',v:`<span class="amount-pill" style="color:var(--cyan)">${fmtAmt(getTicketPurchaseTotal(t))}</span>`},
   ];
 
   let body=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)">
@@ -1261,13 +1809,28 @@ function openDetail(id){
   let actions='';
   const r=currentUser.role;
   if(r==='supervisor'){
-    if(!t.attenderId) actions+=`<button class="btn btn-primary btn-sm" onclick="openAssignModal('${t.id}');closeModal('modal-detail')">Assign Attender</button>`;
-    else actions+=`<button class="btn btn-outline btn-sm" onclick="openAssignModal('${t.id}');closeModal('modal-detail')">Re-assign</button>`;
+    if(t.status!=='Closed'){
+      if(!t.attenderId) actions+=`<button class="btn btn-primary btn-sm" onclick="openAssignModal('${t.id}');closeModal('modal-detail')">Assign Attender</button>`;
+      else actions+=`<button class="btn btn-outline btn-sm" onclick="openAssignModal('${t.id}');closeModal('modal-detail')">Re-assign</button>`;
+    }
     if(t.status==='Pending Finance') actions+=`<button class="btn btn-blue btn-sm" onclick="openQuotModal('${t.id}');closeModal('modal-detail')">Add Quotation</button>`;
     if(t.status==='Closed') actions+=`<button class="btn btn-outline btn-sm" onclick="reopenTicket('${t.id}')">Re-open</button>`;
   }
   if(r==='manager'){
     if(t.status==='Pending Approval') actions+=`<button class="btn btn-green btn-sm" onclick="managerApprove('${t.id}');closeModal('modal-detail')">Approve</button><button class="btn btn-outline btn-sm" onclick="managerReject('${t.id}');closeModal('modal-detail')">Return</button>`;
+  }
+  if(r==='attender'&&t.attenderId===currentUser.attenderId){
+    if(t.status==='Assigned'){
+      actions+=`<button class="btn btn-green btn-sm" onclick="attenderAccept('${t.id}');closeModal('modal-detail')">Accept</button><button class="btn btn-outline btn-sm" onclick="openAttenderDecision('${t.id}');closeModal('modal-detail')">Reject / Hold</button>`;
+    }else if(t.status==='Accepted'){
+      actions+=`<button class="btn btn-green btn-sm" onclick="attenderStartJourney('${t.id}');closeModal('modal-detail')">Job Started</button><button class="btn btn-outline btn-sm" onclick="openPurchaseModal('${t.id}');closeModal('modal-detail')">Purchase</button>`;
+    }else if(['Job Started','In Progress'].includes(t.status)){
+      actions+=`<button class="btn btn-blue btn-sm" onclick="attenderMarkReached('${t.id}');closeModal('modal-detail')">Reached Location</button><button class="btn btn-outline btn-sm" onclick="openPurchaseModal('${t.id}');closeModal('modal-detail')">Purchase</button>`;
+    }else if(t.status==='Reached'){
+      actions+=`<button class="btn btn-primary btn-sm" onclick="openTicketNoteModal('${t.id}','issue');closeModal('modal-detail')">Issues Identified</button><button class="btn btn-outline btn-sm" onclick="openPurchaseModal('${t.id}');closeModal('modal-detail')">Purchase</button><button class="btn btn-green btn-sm" onclick="openTicketNoteModal('${t.id}','close');closeModal('modal-detail')">Ticket Closed</button>`;
+    }else{
+      actions+=`<button class="btn btn-outline btn-sm" onclick="openPurchaseModal('${t.id}');closeModal('modal-detail')">Purchase</button>`;
+    }
   }
   if(actions) body+=`<div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--border)">${actions}</div>`;
 
@@ -1421,7 +1984,8 @@ function triggerCamera(id,type){
     const file=e.target.files[0];
     if(!file) return;
     if(!mediaCaptures[id]) mediaCaptures[id]={};
-    const key=type==='reach'?'reachMedia':type==='bill'?'billMedia':'fixMedia';
+    const keyMap={reach:'reachMedia',bill:'billMedia',fix:'fixMedia',issue:'issueMedia',close:'closeMedia',purchase:'purchaseMedia'};
+    const key=keyMap[type]||'fixMedia';
     if(!mediaCaptures[id][key]) mediaCaptures[id][key]=[];
     const url=URL.createObjectURL(file);
     mediaCaptures[id][key].push({url,name:file.name,type:file.type});
@@ -1475,6 +2039,146 @@ function markFixed(id){
 // ═══════════════════════════════════════════════════════
 //  OTP
 // ═══════════════════════════════════════════════════════
+function attenderStartJourney(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  t.status='Job Started';
+  addTimeline(t,'Job Started','I am starting the journey to the outlet.');
+  toast('Journey started','green');
+  buildNav();
+  navigateTo('my-jobs');
+}
+
+function attenderMarkReached(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  const finalize=(geoText)=>{
+    if(!mediaCaptures[id]) mediaCaptures[id]={};
+    if(geoText) mediaCaptures[id].reachGeo=geoText;
+    t.status='Reached';
+    addTimeline(t,'Reached the Location',`Geo location logged${geoText?': '+geoText:''}`);
+    toast('Location logged and ticket marked reached','green');
+    buildNav();
+    navigateTo('my-jobs');
+  };
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      finalize(`📍 ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)} (±${Math.round(pos.coords.accuracy)}m)`);
+    },()=>{
+      finalize(`📍 Simulated: 12.97${Math.floor(Math.random()*99)}, 77.59${Math.floor(Math.random()*99)} (GPS)`);
+    });
+  }else{
+    finalize('');
+  }
+}
+
+function openAttenderDecision(id){
+  activeDecisionTicketId=id;
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById('dec-tid').textContent=t.id+' · '+t.title;
+  document.getElementById('dec-reason').value='';
+  document.getElementById('dec-remarks').value='';
+  openModal('modal-attender-decision');
+}
+
+function submitAttenderDecision(action){
+  const t=tickets.find(x=>x.id===activeDecisionTicketId);
+  if(!t) return;
+  const reason=document.getElementById('dec-reason').value.trim();
+  const remarks=document.getElementById('dec-remarks').value.trim();
+  if(!reason){toast('Please select a reason','red');return;}
+  if(action==='reject'){
+    t.status='Rejected';
+    addTimeline(t,'Rejected by Attender',currentUser.name+' rejected the ticket. Reason: '+reason+(remarks?'. Remarks: '+remarks:''));
+    toast('Ticket rejected','yellow');
+  }else{
+    t.status='Open';
+    t.attenderId=null;
+    addTimeline(t,'Put On Hold',currentUser.name+' put the ticket on hold. Reason: '+reason+(remarks?'. Remarks: '+remarks:''));
+    toast('Ticket put on hold','yellow');
+  }
+  closeModal('modal-attender-decision');
+  buildNav();
+  navigateTo('dashboard');
+  syncSidebarSummary();
+}
+
+function openPurchaseModal(id){
+  activePurchaseTicketId=id;
+  activeTicketId=id;
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById('pur-tid').textContent=t.id+' · '+t.title;
+  document.getElementById('pur-vendor').value='';
+  document.getElementById('pur-amount').value='';
+  document.getElementById('pur-remarks').value='';
+  const existing=t.purchaseRecords||[];
+  document.getElementById('pur-existing').innerHTML=existing.length
+    ? '<div style="font-size:12px;color:var(--muted);margin-bottom:8px">Existing purchases</div><div class="mapping-list">'+existing.map(p=>'<span class="mapping-chip"><span>'+p.vendor+' · '+fmtAmt(p.amount)+'</span></span>').join('')+'</div>'
+    : '<div class="mapping-note">No purchase records yet.</div>';
+  document.getElementById('pur-media-prev').innerHTML=renderPreviews(mediaCaptures[id]?.purchaseMedia||[]);
+  openModal('modal-purchase');
+}
+
+function submitPurchaseRecord(){
+  const t=tickets.find(x=>x.id===activePurchaseTicketId);
+  if(!t) return;
+  const vendor=document.getElementById('pur-vendor').value.trim();
+  const amount=parseFloat(document.getElementById('pur-amount').value)||0;
+  const remarks=document.getElementById('pur-remarks').value.trim();
+  if(!vendor||!amount){toast('Vendor and bill amount are required','red');return;}
+  if(!mediaCaptures[t.id]) mediaCaptures[t.id]={};
+  const record={vendor,amount,remarks,media:(mediaCaptures[t.id].purchaseMedia||[]).slice(),time:now()};
+  if(!t.purchaseRecords) t.purchaseRecords=[];
+  t.purchaseRecords.push(record);
+  t.status='Purchase Done';
+  addTimeline(t,'Purchase Completed',vendor+' · ₹'+amount.toLocaleString('en-IN')+(remarks?' · '+remarks:''));
+  mediaCaptures[t.id].purchaseMedia=[];
+  closeModal('modal-purchase');
+  toast('Purchase recorded','green');
+  buildNav();
+  navigateTo('my-jobs');
+}
+
+function openTicketNoteModal(id,mode){
+  activeTicketId=id;
+  activeTicketNoteMode=mode;
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById('note-title').textContent=mode==='close'?'Ticket Closed':'Issues Identified';
+  document.getElementById('note-tid').textContent=t.id+' · '+t.title;
+  document.getElementById('note-remarks').value='';
+  const cap=mediaCaptures[id]||{};
+  document.getElementById('note-media-prev').innerHTML=renderPreviews(mode==='close'?cap.closeMedia:cap.issueMedia);
+  openModal('modal-ticket-note');
+}
+
+function submitTicketNote(){
+  const t=tickets.find(x=>x.id===activeTicketId);
+  if(!t) return;
+  const remarks=document.getElementById('note-remarks').value.trim();
+  if(!remarks){toast('Please add remarks','red');return;}
+  if(!mediaCaptures[t.id]) mediaCaptures[t.id]={};
+  if(activeTicketNoteMode==='issue'){
+    if(!mediaCaptures[t.id].issueMedia) mediaCaptures[t.id].issueMedia=[];
+    mediaCaptures[t.id].issueNotes=remarks;
+    t.status='Issues Identified';
+    addTimeline(t,'Issues Identified',remarks);
+  }else{
+    if(!mediaCaptures[t.id].closeMedia) mediaCaptures[t.id].closeMedia=[];
+    mediaCaptures[t.id].closeNotes=remarks;
+    t.status='Closed';
+    t.closedAt=now();
+    t.finalAmount=getTicketPurchaseTotal(t);
+    addTimeline(t,'Closed',remarks);
+  }
+  closeModal('modal-ticket-note');
+  toast(activeTicketNoteMode==='issue'?'Issue details saved':'Ticket closed','green');
+  buildNav();
+  navigateTo('my-jobs');
+}
+
 function openOTPVerify(id){
   activeTicketId=id;
   document.getElementById('otp-input').value='';
@@ -1575,7 +2279,7 @@ function openAssignModal(id){
       </div>
       <div style="text-align:right">
         <div style="color:var(--accent);font-size:13px">${'★'.repeat(Math.round(a.avgRating))} ${a.avgRating}</div>
-        <div class="att-workload">${tickets.filter(t2=>t2.attenderId===a.id&&t2.status!=='Closed').length} active</div>
+        <div class="att-workload">${getActiveTicketCount(a.id)} active</div>
       </div>
       <div style="width:10px;height:10px;border-radius:50%;background:${a.active?'var(--green)':'var(--muted)'}"></div>
     </div>`).join('');
@@ -1592,18 +2296,47 @@ function confirmAssign(){
   if(!assignSelectedAttender){toast('Please select an attender','red');return;}
   const t=tickets.find(x=>x.id===activeTicketId);
   if(!t) return;
+  if(t.status==='Closed'){
+    toast('Closed tickets must be reopened before reassignment','red');
+    return;
+  }
   const att=ATTENDERS.find(a=>a.id===assignSelectedAttender);
   const amt=parseFloat(document.getElementById('assign-amount').value)||0;
   const note=document.getElementById('assign-note').value;
   const wasReassign=!!t.attenderId;
   t.attenderId=assignSelectedAttender;
   t.transferAmount=amt;
-  t.status='In Progress';
+  t.status='Assigned';
   addTimeline(t,wasReassign?'Re-assigned to Attender':'Assigned to Attender',
     `Assigned to ${att.name}${amt?`. ₹${amt.toLocaleString('en-IN')} transferred for purchases`:''}.${note?' Note: '+note:''}`);
   closeModal('modal-assign');
   toast(`✅ Assigned to ${att.name}${amt?`, ₹${amt.toLocaleString('en-IN')} transferred`:''}`, 'green');
   buildNav(); navigateTo('dashboard');
+}
+
+function attenderAccept(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  if(t.attenderId!==currentUser.attenderId){ toast('This ticket is not assigned to you','red'); return; }
+  if(!['Assigned','Open'].includes(t.status)){ toast('This ticket is not awaiting acceptance','red'); return; }
+  t.status='Accepted';
+  addTimeline(t,'Accepted by Attender','Attender accepted the assignment.');
+  toast('✅ Job accepted!','green');
+  buildNav();
+  navigateTo('my-jobs');
+}
+
+function attenderReject(id){
+  const t=tickets.find(x=>x.id===id);
+  if(!t) return;
+  if(t.attenderId!==currentUser.attenderId){ toast('This ticket is not assigned to you','red'); return; }
+  if(!['Assigned','Open'].includes(t.status)){ toast('This ticket is not awaiting acceptance','red'); return; }
+  t.status='Rejected';
+  addTimeline(t,'Rejected by Attender',`Rejected by ${currentUser.name}. Returned to supervisor queue.`);
+  toast('↩ Ticket rejected and returned to supervisor','yellow');
+  buildNav();
+  navigateTo('dashboard');
+  syncSidebarSummary();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1634,7 +2367,7 @@ function submitQuot(){
 }
 
 // Attender accepts job
-function attenderAccept(id){
+function legacyAttenderAccept(id){
   const t=tickets.find(x=>x.id===id);
   if(!t) return;
   t.status='Accepted';
@@ -1740,6 +2473,7 @@ function submitTicket(){
   }
 
   const newId = tid(); // ✅ FIX ADDED
+  const autoAttender = findAutoAssignedAttender(currentUser.kitchenCode);
 
   const t={
     id:newId, // ✅ FIXED
@@ -1749,13 +2483,13 @@ function submitTicket(){
     impact:document.getElementById('nt-impact').value,
     desc:document.getElementById('nt-desc').value,
     cost:parseFloat(document.getElementById('nt-cost').value)||0,
-    status:'Open',
+    status:autoAttender?'Assigned':'Open',
     date:now(),
     otp:genOTP(),
     timeline:[
       {step:'Submitted',done:true,time:now(),note:`Raised by ${name}`},
       {step:'Ticket Created',done:true,time:now(),note:`${newId} generated`}, // ✅ FIXED
-      {step:'Assigned to Attender',done:false,time:'',note:'Awaiting supervisor action'},
+      {step:'Assigned to Attender',done:!!autoAttender,time:autoAttender?now():'',note:autoAttender?`Auto-assigned to ${autoAttender.name} via outlet mapping`:'Awaiting supervisor action'},
       {step:'Accepted by Attender',done:false,time:'',note:''},
       {step:'Attender Reached',done:false,time:'',note:''},
       {step:'Quotation Submitted',done:false,time:'',note:''},
@@ -1764,6 +2498,10 @@ function submitTicket(){
       {step:'Closed',done:false,time:'',note:''},
     ]
   };
+
+  if(autoAttender){
+    t.attenderId=autoAttender.id;
+  }
 
   tickets.unshift(t);
 
@@ -1808,10 +2546,14 @@ function boot(){
   const kd=document.getElementById('login-kitchen');
   KITCHENS.forEach(k=>{ const o=document.createElement('option');o.value=k;o.textContent=k;kd.appendChild(o); });
 
+  const mappingOptions=document.getElementById('mapping-outlet-options');
+  KITCHENS.forEach(k=>{ const o=document.createElement('option');o.value=k;o.textContent=k;mappingOptions?.appendChild(o); });
+
   // Populate attender dropdown
   const ad=document.getElementById('login-attender');
   ATTENDERS.forEach(a=>{ const o=document.createElement('option');o.value=a.id;o.textContent=`${a.name} (${a.id})`;ad.appendChild(o); });
 
+  loadAttenderMappings();
   seedData();
 
   // Auto-login if stored
@@ -1822,5 +2564,6 @@ function boot(){
 window.addEventListener('DOMContentLoaded',boot);
 window.addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElementById('screen-login').classList.contains('active')) doLogin(); });
 </script>
-</body>
-</html>
+
+
+</body><div id="codex-browser-sidebar-comments-root" style="position: fixed; inset: 0px; pointer-events: none; z-index: 2147483000;"></div></html>
