@@ -1,8 +1,10 @@
-<html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>R&amp;M Engine v2</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Sora:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<title>R&M Engine v2</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#0a0c10; --surface:#111318; --surface2:#181c24; --surface3:#1e2330;
@@ -293,22 +295,22 @@ td{padding:11px 14px;font-size:13px}
 @media(max-width:480px){.stats-grid{grid-template-columns:1fr}}
 </style>
 </head>
-<body class="">
+<body>
 
 <!-- ═══════════════════════════════════
      LOGIN SCREEN
 ═══════════════════════════════════ -->
-<div class="screen" id="screen-login">
+<div class="screen active" id="screen-login">
   <div class="login-wrap">
     <div class="login-logo">
-      <h1>R<span>&amp;</span>M Portal</h1>
+      <h1>R<span>&</span>M Portal</h1>
       <p>Repair &amp; Maintenance Management System v2.0</p>
     </div>
 
     <div style="margin-bottom:16px">
       <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Select your role</div>
       <div class="role-grid" id="role-grid">
-        <div class="role-card" data-role="requester" onclick="selectRole(this)">
+        <div class="role-card selected" data-role="requester" onclick="selectRole(this)">
           <div class="role-icon">🏪</div>
           <div class="role-name">Requester</div>
           <div class="role-sub">Kitchen / Cluster Mgr</div>
@@ -316,14 +318,14 @@ td{padding:11px 14px;font-size:13px}
         <div class="role-card" data-role="supervisor" onclick="selectRole(this)">
           <div class="role-icon">🔧</div>
           <div class="role-name">RM Supervisor</div>
-          <div class="role-sub">Assign &amp; coordinate</div>
+          <div class="role-sub">Assign & coordinate</div>
         </div>
         <div class="role-card" data-role="manager" onclick="selectRole(this)">
           <div class="role-icon">👔</div>
           <div class="role-name">RM Manager</div>
-          <div class="role-sub">Approve &amp; oversee</div>
+          <div class="role-sub">Approve & oversee</div>
         </div>
-        <div class="role-card selected" data-role="attender" onclick="selectRole(this)">
+        <div class="role-card" data-role="attender" onclick="selectRole(this)">
           <div class="role-icon">🛠️</div>
           <div class="role-name">Attender</div>
           <div class="role-sub">On-ground technician</div>
@@ -332,15 +334,15 @@ td{padding:11px 14px;font-size:13px}
     </div>
 
     <div class="login-form">
-      <h2 id="login-form-title">Login as Attender</h2>
-      <div class="form-group" id="kitchen-grp" style="display: none;">
+      <h2 id="login-form-title">Login as Requester</h2>
+      <div class="form-group" id="kitchen-grp">
         <label>Kitchen Location</label>
-        <select id="login-kitchen"><option value="">Select Kitchen</option><option value="ANR01.BLR22">ANR01.BLR22</option><option value="BLD01.BLR25">BLD01.BLR25</option><option value="BMS01.BLR26">BMS01.BLR26</option><option value="BOM01.BLR04">BOM01.BLR04</option><option value="BSK01.BLR19">BSK01.BLR19</option><option value="BSN01.BLR40">BSN01.BLR40</option><option value="BTM01.BLR03">BTM01.BLR03</option><option value="CK-Corp Office">CK-Corp Office</option><option value="CK-Dispatch Section">CK-Dispatch Section</option><option value="CK-Production Section">CK-Production Section</option><option value="CK-Staff Room">CK-Staff Room</option><option value="CK-Warehouse Section">CK-Warehouse Section</option><option value="CMP01.CHN10">CMP01.CHN10</option><option value="CRN01.BLR17">CRN01.BLR17</option><option value="ECT01.BLR24">ECT01.BLR24</option><option value="FZT01.BLR20">FZT01.BLR20</option><option value="HNR01.BLR16">HNR01.BLR16</option><option value="HSR01.BLR02">HSR01.BLR02</option><option value="IND01.BLR01">IND01.BLR01</option><option value="JYN01.BLR30">JYN01.BLR30</option><option value="KDG01.BLR14">KDG01.BLR14</option><option value="KGI01.BLR43">KGI01.BLR43</option><option value="KLN01.BLR09">KLN01.BLR09</option><option value="KOR01.BLR12">KOR01.BLR12</option><option value="KPR01.BLR41">KPR01.BLR41</option><option value="MAR01.BLR05">MAR01.BLR05</option><option value="MGP01.CHN01">MGP01.CHN01</option><option value="NBR01.BLR21">NBR01.BLR21</option><option value="PGD01.CHN06">PGD01.CHN06</option><option value="PRR01.CHN04">PRR01.CHN04</option><option value="RTN01.BLR23">RTN01.BLR23</option><option value="SDP01.BLR34">SDP01.BLR34</option><option value="SGS01.BLR42">SGS01.BLR42</option><option value="SJP01.BLR08">SJP01.BLR08</option><option value="SKM01.CHN03">SKM01.CHN03</option><option value="SKN01.BLR07">SKN01.BLR07</option><option value="TCP01.BLR27">TCP01.BLR27</option><option value="TKR01.BLR29">TKR01.BLR29</option><option value="VDP01.CHN02">VDP01.CHN02</option><option value="VNR01.BLR18">VNR01.BLR18</option><option value="WFD01.BLR06">WFD01.BLR06</option><option value="WFD02.BLR13">WFD02.BLR13</option><option value="YLK01.BLR15">YLK01.BLR15</option></select>
+        <select id="login-kitchen"><option value="">Select Kitchen</option></select>
         <div class="err-msg" id="err-kitchen">Please select your kitchen</div>
       </div>
-      <div class="form-group" id="attender-grp" style="display: block;">
+      <div class="form-group" id="attender-grp" style="display:none">
         <label>Attender Name</label>
-        <select id="login-attender"><option value="">Select Attender</option><option value="A01">Niranjan (A01)</option><option value="A02">Yash patil (A02)</option><option value="A03">Mohammed ALi (A03)</option><option value="A04">Arjun (A04)</option><option value="A05">Aruna (A05)</option><option value="A06">Networking vendor (A06)</option><option value="A07">Philps (A07)</option><option value="A08">Anand (A08)</option><option value="A09">Sathis (A09)</option><option value="A10">Samuel (A10)</option></select>
+        <select id="login-attender"><option value="">Select Attender</option></select>
         <div class="err-msg" id="err-attender">Please select attender</div>
       </div>
       <div class="form-group">
@@ -356,7 +358,7 @@ td{padding:11px 14px;font-size:13px}
 <!-- ═══════════════════════════════════
      APP SCREEN
 ═══════════════════════════════════ -->
-<div class="screen active" id="screen-app">
+<div class="screen" id="screen-app">
   <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false)"></div>
   <div class="app-shell">
 
@@ -364,30 +366,10 @@ td{padding:11px 14px;font-size:13px}
     <aside class="sidebar" id="sidebar">
       <div class="logo">
         <div class="logo-icon">⚡</div>
-        <div class="logo-text">R<span>&amp;</span>M Portal</div>
+        <div class="logo-text">R<span>&</span>M Portal</div>
       </div>
-      <div class="sidebar-summary" id="sidebar-summary">
-    <div class="sum-title">Quick View</div>
-    <div class="sum-meta"><span>My Profile</span></div>
-    <div class="sum-meta" style="margin-top:8px"><div>Assigned 0</div><div>Started 0</div><div>Reached 0</div><div>Closed 0</div><div>Spend ₹0</div></div>
-  </div>
-      <nav class="nav" id="sidebar-nav"><div class="nav-label">Navigation</div><div class="nav-item" id="nav-dashboard" onclick="navigateTo('dashboard')">
-      <span class="ni">📊</span>
-      <span>My Dashboard</span>
-      
-    </div><div class="nav-item" id="nav-my-jobs" onclick="navigateTo('my-jobs')">
-      <span class="ni">🔧</span>
-      <span>My Jobs</span>
-      
-    </div><div class="nav-item" id="nav-history" onclick="navigateTo('history')">
-      <span class="ni">📁</span>
-      <span>Job History</span>
-      
-    </div><div class="nav-item active" id="nav-profile" onclick="navigateTo('profile')">
-      <span class="ni">👤</span>
-      <span>My Profile</span>
-      
-    </div></nav>
+      <div class="sidebar-summary" id="sidebar-summary"></div>
+      <nav class="nav" id="sidebar-nav"></nav>
       <div class="sidebar-footer">
         <div class="nav-item" onclick="logout()" style="color:var(--red)">
           <span class="ni">🚪</span><span>Logout</span>
@@ -400,54 +382,21 @@ td{padding:11px 14px;font-size:13px}
       <div class="topbar">
         <button class="sidebar-toggle" onclick="toggleDrawer()"><span></span></button>
         <div class="topbar-title">
-          <h1 id="page-title">My Profile</h1>
+          <h1 id="page-title">Dashboard</h1>
           <p id="page-sub">Repair &amp; Maintenance</p>
         </div>
         <div class="topbar-user">
-          <div class="user-avatar" id="user-avatar">🛠️</div>
+          <div class="user-avatar" id="user-avatar">?</div>
         <div>
-            <div class="user-name" id="user-name-display">Niranjan</div>
-            <div class="user-role" id="user-role-display">Attender</div>
+            <div class="user-name" id="user-name-display"></div>
+            <div class="user-role" id="user-role-display"></div>
           </div>
           <button class="btn btn-outline btn-sm mobile-logout" onclick="logout()">Logout</button>
           <button class="btn btn-primary btn-sm" id="new-ticket-btn" onclick="openNewTicketModal()" style="display:none">+ New Ticket</button>
         </div>
       </div>
 
-      <div class="content" id="main-content">
-  <div style="display:grid;grid-template-columns:300px 1fr;gap:20px">
-    <div>
-      <div class="card" style="padding:24px;text-align:center">
-        <div style="width:80px;height:80px;border-radius:50%;background:rgba(59,130,246,.2);border:3px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px">🛠️</div>
-        <div style="font-size:18px;font-weight:700">Niranjan</div>
-        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-top:4px">Attender ID: A01</div>
-        <div style="margin:16px 0;font-size:28px;color:var(--accent);font-weight:700">4.6 ★</div>
-        <div style="font-size:13px;color:var(--muted)">38 total ratings</div>
-        <div style="margin-top:16px;display:flex;justify-content:center">
-          <span class="badge b-approved">Available</span>
-        </div>
-      </div>
-      <div class="card" style="margin-top:12px;padding:18px">
-        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Skills</div>
-        <span style="display:inline-block;background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:3px 10px;font-size:12px;margin:3px">Electrical</span><span style="display:inline-block;background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:3px 10px;font-size:12px;margin:3px">Plumbing</span>
-      </div>
-    </div>
-    <div>
-      <div class="card" style="margin-bottom:12px;padding:18px">
-        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Performance Stats</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <div><div style="font-size:11px;color:var(--muted)">Total Jobs</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)">0</div></div>
-          <div><div style="font-size:11px;color:var(--muted)">Closed</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--green)">0</div></div>
-          <div><div style="font-size:11px;color:var(--muted)">Avg Rating</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--accent)">4.6</div></div>
-          <div><div style="font-size:11px;color:var(--muted)">Total Ratings</div><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)">38</div></div>
-        </div>
-      </div>
-      <div class="card" style="padding:18px">
-        <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Recent Ratings</div>
-        <div style="color:var(--muted);font-size:13px">No ratings yet</div>
-      </div>
-    </div>
-  </div></div>
+      <div class="content" id="main-content"></div>
     </main>
   </div>
 </div>
@@ -469,7 +418,7 @@ td{padding:11px 14px;font-size:13px}
         </div>
         <div class="form-group">
           <label>Kitchen Code</label>
-          <input type="text" id="nt-kitchen" readonly="">
+          <input type="text" id="nt-kitchen" readonly>
         </div>
         <div class="form-group full">
           <label>Issue Title *</label>
@@ -481,12 +430,12 @@ td{padding:11px 14px;font-size:13px}
           <select id="nt-dept" onchange="loadSubCat()">
             <option value="">Select</option>
             <option>Carpentry</option><option>CCTV</option><option>Chiller</option>
-            <option>Civil</option><option>Cleaning &amp; Shifting</option><option>DG</option>
+            <option>Civil</option><option>Cleaning & Shifting</option><option>DG</option>
             <option>Drainage</option><option>Electrical</option><option>Electronic Service</option>
             <option>Equipments</option><option>Exhaust Fan Cleaning</option><option>Gas</option>
             <option>Internet Issue</option><option>Painting</option><option>Plumbing</option>
             <option>RO Tank Cleaning</option><option>Rodent Issue</option>
-            <option>System &amp; Computer</option><option>Tiles</option><option>Welding</option>
+            <option>System & Computer</option><option>Tiles</option><option>Welding</option>
           </select>
           <div class="err-msg" id="err-nt-dept">Required</div>
         </div>
@@ -533,41 +482,10 @@ td{padding:11px 14px;font-size:13px}
 <div class="overlay" id="modal-detail">
   <div class="modal wide">
     <div class="modal-head">
-      <div><h2 id="md-title">Deep Freezer Temperature Issue</h2><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px" id="md-sub">RMT-1002 · Equipments · MGP01.CHN01</div></div>
+      <div><h2 id="md-title">Ticket</h2><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px" id="md-sub"></div></div>
       <button class="close-x" onclick="closeModal('modal-detail')">✕</button>
     </div>
-    <div id="md-body" class="modal-body"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)">
-    <div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Status</div><div style="font-size:13px;font-weight:600"><span class="badge b-accepted">Accepted</span></div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Priority</div><div style="font-size:13px;font-weight:600"><span class="p-dot p-high"></span>High</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Kitchen</div><div style="font-size:13px;font-weight:600"><span style="font-family:var(--mono);font-size:12px">MGP01.CHN01</span></div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Requester</div><div style="font-size:13px;font-weight:600">Priya Nair</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Raised</div><div style="font-size:13px;font-weight:600">5 Jan 2025, 08:00</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Department</div><div style="font-size:13px;font-weight:600">Equipments / Repair</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Business Impact</div><div style="font-size:13px;font-weight:600">Significant Disruption</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Quotation</div><div style="font-size:13px;font-weight:600">Not yet</div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Attender</div><div style="font-size:13px;font-weight:600"><span style="font-weight:600">Yash patil</span></div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Transfer</div><div style="font-size:13px;font-weight:600"><span class="amount-pill" style="color:var(--cyan)">₹3,000</span></div></div><div><div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Purchase Spend</div><div style="font-size:13px;font-weight:600"><span class="amount-pill" style="color:var(--cyan)">-</span></div></div>
-  </div><div style="margin-bottom:20px"><div style="font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">Ticket Timeline</div>
-    <div class="timeline"><div class="tl-item done">
-        <div class="tl-dot">✓</div>
-        <div class="tl-body"><h4>Submitted</h4><div class="tl-time">5 Jan 2025, 08:00</div></div>
-      </div><div class="tl-item done">
-        <div class="tl-dot">✓</div>
-        <div class="tl-body"><h4>Ticket Created</h4><div class="tl-time">5 Jan 2025, 08:00</div></div>
-      </div><div class="tl-item done">
-        <div class="tl-dot">✓</div>
-        <div class="tl-body"><h4>Assigned to Attender</h4><p>Assigned to Ravi Kumar. ₹3000 transferred</p><div class="tl-time">5 Jan 2025, 09:15</div></div>
-      </div><div class="tl-item done">
-        <div class="tl-dot">✓</div>
-        <div class="tl-body"><h4>Accepted by Attender</h4><div class="tl-time">5 Jan 2025, 09:45</div></div>
-      </div><div class="tl-item active">
-        <div class="tl-dot">5</div>
-        <div class="tl-body"><h4>Attender Reached</h4><div class="tl-time">Pending</div></div>
-      </div><div class="tl-item ">
-        <div class="tl-dot">6</div>
-        <div class="tl-body"><h4>Quotation Submitted</h4><div class="tl-time">Pending</div></div>
-      </div><div class="tl-item ">
-        <div class="tl-dot">7</div>
-        <div class="tl-body"><h4>Pending Manager Approval</h4><div class="tl-time">Pending</div></div>
-      </div><div class="tl-item ">
-        <div class="tl-dot">8</div>
-        <div class="tl-body"><h4>Work Completed</h4><div class="tl-time">Pending</div></div>
-      </div><div class="tl-item ">
-        <div class="tl-dot">9</div>
-        <div class="tl-body"><h4>Closed</h4><div class="tl-time">Pending</div></div>
-      </div></div>
-  </div></div>
+    <div id="md-body" class="modal-body"></div>
   </div>
 </div>
 
@@ -589,7 +507,7 @@ td{padding:11px 14px;font-size:13px}
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('modal-assign')">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmAssign()">Assign &amp; Notify</button>
+      <button class="btn btn-primary" onclick="confirmAssign()">Assign & Notify</button>
     </div>
   </div>
 </div>
@@ -613,7 +531,7 @@ td{padding:11px 14px;font-size:13px}
         <div class="form-group" style="margin:0">
           <label>Add Kitchen / Location</label>
           <input type="text" id="mapping-outlet-input" list="mapping-outlet-options" placeholder="Type kitchen code or location">
-          <datalist id="mapping-outlet-options"><option value="ANR01.BLR22">ANR01.BLR22</option><option value="BLD01.BLR25">BLD01.BLR25</option><option value="BMS01.BLR26">BMS01.BLR26</option><option value="BOM01.BLR04">BOM01.BLR04</option><option value="BSK01.BLR19">BSK01.BLR19</option><option value="BSN01.BLR40">BSN01.BLR40</option><option value="BTM01.BLR03">BTM01.BLR03</option><option value="CK-Corp Office">CK-Corp Office</option><option value="CK-Dispatch Section">CK-Dispatch Section</option><option value="CK-Production Section">CK-Production Section</option><option value="CK-Staff Room">CK-Staff Room</option><option value="CK-Warehouse Section">CK-Warehouse Section</option><option value="CMP01.CHN10">CMP01.CHN10</option><option value="CRN01.BLR17">CRN01.BLR17</option><option value="ECT01.BLR24">ECT01.BLR24</option><option value="FZT01.BLR20">FZT01.BLR20</option><option value="HNR01.BLR16">HNR01.BLR16</option><option value="HSR01.BLR02">HSR01.BLR02</option><option value="IND01.BLR01">IND01.BLR01</option><option value="JYN01.BLR30">JYN01.BLR30</option><option value="KDG01.BLR14">KDG01.BLR14</option><option value="KGI01.BLR43">KGI01.BLR43</option><option value="KLN01.BLR09">KLN01.BLR09</option><option value="KOR01.BLR12">KOR01.BLR12</option><option value="KPR01.BLR41">KPR01.BLR41</option><option value="MAR01.BLR05">MAR01.BLR05</option><option value="MGP01.CHN01">MGP01.CHN01</option><option value="NBR01.BLR21">NBR01.BLR21</option><option value="PGD01.CHN06">PGD01.CHN06</option><option value="PRR01.CHN04">PRR01.CHN04</option><option value="RTN01.BLR23">RTN01.BLR23</option><option value="SDP01.BLR34">SDP01.BLR34</option><option value="SGS01.BLR42">SGS01.BLR42</option><option value="SJP01.BLR08">SJP01.BLR08</option><option value="SKM01.CHN03">SKM01.CHN03</option><option value="SKN01.BLR07">SKN01.BLR07</option><option value="TCP01.BLR27">TCP01.BLR27</option><option value="TKR01.BLR29">TKR01.BLR29</option><option value="VDP01.CHN02">VDP01.CHN02</option><option value="VNR01.BLR18">VNR01.BLR18</option><option value="WFD01.BLR06">WFD01.BLR06</option><option value="WFD02.BLR13">WFD02.BLR13</option><option value="YLK01.BLR15">YLK01.BLR15</option></datalist>
+          <datalist id="mapping-outlet-options"></datalist>
           <div class="mapping-note">Add or remove any kitchen/location here. Auto-assign uses these mappings against the ticket kitchen code.</div>
         </div>
         <button class="btn btn-green" onclick="addAttenderMapping()">Add</button>
@@ -621,6 +539,68 @@ td{padding:11px 14px;font-size:13px}
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('modal-attender-mapping')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE SHEET SYNC -->
+<div class="overlay" id="modal-sheet-sync">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-head">
+      <div>
+        <h2>📊 Google Sheet Sync</h2>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px">Ticket history, geo location, and proof metadata</div>
+      </div>
+      <button class="close-x" onclick="closeModal('modal-sheet-sync')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="card" style="margin-bottom:14px;padding:14px">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px">
+          <div>
+            <div style="font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px">Sync Status</div>
+            <div id="sheet-sync-status" style="margin-top:6px"></div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="sheetSyncTick()">Refresh Now</button>
+        </div>
+        <div id="sheet-sync-detail" style="font-size:12px;color:var(--muted)"></div>
+        <div id="sheet-sync-last" style="font-size:12px;color:var(--muted);margin-top:6px"></div>
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="sheet-sync-enabled" style="width:16px;height:16px;vertical-align:middle;margin-right:8px">
+          Enable Google Sheet sync
+        </label>
+      </div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Spreadsheet ID</label>
+          <input type="text" id="sheet-id" placeholder="Google Sheet ID">
+        </div>
+        <div class="form-group full">
+          <label>Sheet Tab</label>
+          <input type="text" id="sheet-tab" placeholder="Master data">
+        </div>
+        <div class="form-group full">
+          <label>Push URL</label>
+          <input type="url" id="sheet-push-url" placeholder="Google Apps Script web app URL for append/update">
+        </div>
+        <div class="form-group full">
+          <label>Pull URL</label>
+          <input type="url" id="sheet-pull-url" placeholder="Published JSON URL for live refresh">
+        </div>
+        <div class="form-group">
+          <label>Poll Interval (ms)</label>
+          <input type="number" id="sheet-poll-interval" min="5000" step="1000" value="15000">
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">
+        Use a Google Apps Script web app as the push endpoint. Each ticket event is sent with the spreadsheet ID, tab name, status, timeline step, geo location, and proof file names. If you also provide a JSON pull URL, the app will refresh ticket history in the background.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modal-sheet-sync')">Close</button>
+      <button class="btn btn-outline" onclick="testSheetPush()">Test Sync</button>
+      <button class="btn btn-primary" onclick="saveSheetSyncSettings()">Save Settings</button>
     </div>
   </div>
 </div>
@@ -769,7 +749,7 @@ td{padding:11px 14px;font-size:13px}
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('modal-otp')">Cancel</button>
-      <button class="btn btn-green" onclick="verifyOTP()">Verify &amp; Close Ticket</button>
+      <button class="btn btn-green" onclick="verifyOTP()">Verify & Close Ticket</button>
     </div>
   </div>
 </div>
@@ -847,7 +827,6 @@ const ATTENDERS = [
   {id:'A09',name:'Sathis',phone:'9876543218',skills:['Rodent Issue','Cleaning & Shifting'],avgRating:3.9,totalRatings:12,active:false,outlets:['CK-Corp Office','CK-Dispatch Section']},
   {id:'A10',name:'Samuel',phone:'9876543219',skills:['Electronic Service','System & Computer','Internet Issue'],avgRating:4.4,totalRatings:29,active:true,outlets:['CK-Production Section','CK-Staff Room']},
 ];
-
 // App state
 let tickets = [];
 let ticketCounter = 1000;
@@ -864,6 +843,22 @@ let activeDecisionTicketId = null;
 let feedbackRating = 0;
 let mediaCaptures = {}; // ticketId -> { location, reached, fixed, purchase }
 const ATTENDER_MAPPING_STORAGE = 'rmAttenderMappings';
+const SHEET_SYNC_STORAGE = 'rmSheetSyncConfig';
+
+let sheetSyncConfig = {
+  enabled:false,
+  spreadsheetId:'1RmCknsQSETytmMgDY8dK3i9M1hcSYLNy3Ls-8W_Pld4',
+  sheetTab:'Master data',
+  pushUrl:'',
+  pullUrl:'',
+  pollInterval:15000,
+  lastPushAt:'',
+  lastPullAt:'',
+  lastError:'',
+};
+let sheetSyncQueue = [];
+let sheetSyncBusy = false;
+let sheetSyncTimer = null;
 
 const ROLE_LABELS = {requester:'Requester',supervisor:'RM Supervisor',manager:'RM Manager',attender:'Attender'};
 const STATUS_COLORS = {
@@ -1021,6 +1016,291 @@ function saveAttenderMappings(){
     payload[att.id] = uniqueOutlets(att.outlets);
   });
   localStorage.setItem(ATTENDER_MAPPING_STORAGE, JSON.stringify(payload));
+}
+function loadSheetSyncConfig(){
+  try{
+    const raw = localStorage.getItem(SHEET_SYNC_STORAGE);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    sheetSyncConfig = {
+      ...sheetSyncConfig,
+      ...saved,
+      enabled: !!saved?.enabled,
+      spreadsheetId: String(saved?.spreadsheetId||sheetSyncConfig.spreadsheetId||'').trim(),
+      sheetTab: String(saved?.sheetTab||sheetSyncConfig.sheetTab||'Master data').trim() || 'Master data',
+      pushUrl: String(saved?.pushUrl||'').trim(),
+      pullUrl: String(saved?.pullUrl||'').trim(),
+      pollInterval: Math.max(5000, parseInt(saved?.pollInterval,10)||15000),
+    };
+  }catch(e){
+    localStorage.removeItem(SHEET_SYNC_STORAGE);
+  }
+}
+function saveSheetSyncConfig(){
+  localStorage.setItem(SHEET_SYNC_STORAGE, JSON.stringify(sheetSyncConfig));
+  refreshSheetSyncPanel();
+  restartSheetSyncPolling();
+}
+function isSheetSyncConfigured(){
+  return !!(sheetSyncConfig.enabled && sheetSyncConfig.pushUrl);
+}
+function getMediaSummary(list){
+  return (list||[]).map(m=>m?.name||m?.url||m?.type||'file').filter(Boolean);
+}
+function getTicketProofSummary(ticket){
+  const cap = mediaCaptures[ticket?.id] || {};
+  const parts = [];
+  const addParts = (label, media) => {
+    const items = getMediaSummary(media);
+    if(items.length) parts.push(`${label}: ${items.join(', ')}`);
+  };
+  addParts('Arrival', cap.reachMedia);
+  addParts('Bill', cap.billMedia);
+  addParts('Fix', cap.fixMedia);
+  addParts('Issue', cap.issueMedia);
+  addParts('Close', cap.closeMedia);
+  addParts('Purchase', cap.purchaseMedia);
+  (ticket?.purchaseRecords||[]).forEach((p, idx)=>{
+    const items = getMediaSummary(p.media);
+    if(items.length) parts.push(`Purchase ${idx+1}: ${items.join(', ')}`);
+  });
+  return parts.join(' | ');
+}
+function getTicketGeoSummary(ticket){
+  const cap = mediaCaptures[ticket?.id] || {};
+  return cap.reachGeo || cap.purchaseGeo || ticket?.lastGeoLocation || '';
+}
+function buildSheetEvent(ticket, step, note='', meta={}){
+  return {
+    ticketId: ticket?.id || '',
+    ticketDate: ticket?.date || '',
+    kitchenCode: ticket?.kitchenCode || '',
+    requesterName: ticket?.requesterName || '',
+    title: ticket?.title || '',
+    dept: ticket?.dept || '',
+    subcat: ticket?.subcat || '',
+    priority: ticket?.priority || '',
+    status: ticket?.status || '',
+    attenderId: ticket?.attenderId || '',
+    attenderName: getAttenderName(ticket?.attenderId),
+    step: step || '',
+    remark: note || '',
+    timeline: JSON.stringify(ticket?.timeline || []),
+    geoLocation: meta.geoLocation || getTicketGeoSummary(ticket),
+    proofDocs: meta.proofDocs || getTicketProofSummary(ticket),
+    mediaCount: meta.mediaCount ?? ((meta.proofDocs||'') ? String((meta.proofDocs||'').split('|').length) : ''),
+    purchaseTotal: String(getTicketPurchaseTotal(ticket) || 0),
+    purchaseVendor: ticket?.purchaseVendor || meta.purchaseVendor || '',
+    purchaseAmount: String(ticket?.purchaseAmount || meta.purchaseAmount || ''),
+    transferAmount: String(ticket?.transferAmount || ''),
+    quotation: String(ticket?.quotation || ''),
+    spreadsheetId: sheetSyncConfig.spreadsheetId || '',
+    sheetTab: sheetSyncConfig.sheetTab || 'Master data',
+    timestamp: now(),
+  };
+}
+function queueSheetSync(ticket, step, note='', meta={}){
+  if(!isSheetSyncConfigured() || !ticket?.id) return;
+  sheetSyncQueue.push(buildSheetEvent(ticket, step, note, meta));
+  flushSheetSyncQueue();
+}
+async function flushSheetSyncQueue(){
+  if(sheetSyncBusy || !sheetSyncQueue.length || !isSheetSyncConfigured()) return;
+  sheetSyncBusy = true;
+  const payload = sheetSyncQueue.splice(0, sheetSyncQueue.length);
+  try{
+    await fetch(sheetSyncConfig.pushUrl,{
+      method:'POST',
+      mode:'cors',
+      cache:'no-store',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'append',
+        source:'RMENGINE',
+        spreadsheetId:sheetSyncConfig.spreadsheetId || '',
+        sheetTab:sheetSyncConfig.sheetTab || 'Master data',
+        rows:payload
+      })
+    });
+    sheetSyncConfig.lastPushAt = now();
+    sheetSyncConfig.lastError = '';
+    saveSheetSyncConfig();
+  }catch(err){
+    sheetSyncQueue = payload.concat(sheetSyncQueue);
+    sheetSyncConfig.lastError = err?.message || 'Sync failed';
+    saveSheetSyncConfig();
+  }finally{
+    sheetSyncBusy = false;
+  }
+}
+function normalizeSheetRows(payload){
+  if(Array.isArray(payload)) return payload;
+  if(Array.isArray(payload?.rows)) return payload.rows;
+  if(Array.isArray(payload?.data)) return payload.data;
+  if(Array.isArray(payload?.events)) return payload.events;
+  return [];
+}
+function applySheetRowToTicket(ticket, row){
+  if(!ticket || !row) return;
+  if(row.status) ticket.status = row.status;
+  if(row.attenderId) ticket.attenderId = row.attenderId;
+  if(row.kitchenCode) ticket.kitchenCode = row.kitchenCode;
+  if(row.priority) ticket.priority = row.priority;
+  if(row.quotation && !ticket.quotation) ticket.quotation = parseFloat(row.quotation)||0;
+  if(row.transferAmount && !ticket.transferAmount) ticket.transferAmount = parseFloat(row.transferAmount)||0;
+  if(row.purchaseVendor && !ticket.purchaseVendor) ticket.purchaseVendor = row.purchaseVendor;
+  if(row.purchaseAmount && !ticket.purchaseAmount) ticket.purchaseAmount = parseFloat(row.purchaseAmount)||0;
+  if(row.geoLocation) ticket.lastGeoLocation = row.geoLocation;
+  if(row.proofDocs){
+    ticket.proofDocs = ticket.proofDocs || [];
+    const nextDocs = Array.isArray(row.proofDocs) ? row.proofDocs : String(row.proofDocs).split(' | ');
+    nextDocs.forEach(doc=>{
+      if(doc && !ticket.proofDocs.includes(doc)) ticket.proofDocs.push(doc);
+    });
+  }
+  if(row.timestamp && row.step){
+    ticket.timeline = ticket.timeline || [];
+    const exists = ticket.timeline.some(s=>s.step===row.step && String(s.time||'')===String(row.timestamp||'') && String(s.note||'')===String(row.remark||''));
+    if(!exists){
+      ticket.timeline.push({step:row.step,done:true,time:row.timestamp,note:row.remark||''});
+    }
+  }
+}
+async function pullSheetSync(){
+  if(!isSheetSyncConfigured() || !sheetSyncConfig.pullUrl) return;
+  try{
+    const res = await fetch(sheetSyncConfig.pullUrl,{method:'GET',cache:'no-store',mode:'cors'});
+    const data = await res.json();
+    const rows = normalizeSheetRows(data);
+    if(rows.length){
+      const grouped = new Map();
+      rows.forEach(row=>{
+        const key = row.ticketId || row.id;
+        if(!key) return;
+        const bucket = grouped.get(key) || [];
+        bucket.push(row);
+        grouped.set(key,bucket);
+      });
+      grouped.forEach((bucket, key)=>{
+        bucket.sort((a,b)=>new Date(a.timestamp||a.time||0) - new Date(b.timestamp||b.time||0));
+        let ticket = tickets.find(t=>t.id===key);
+        if(!ticket){
+          const first = bucket[0] || {};
+          ticket = {
+            id:key,
+            date:first.ticketDate || first.timestamp || now(),
+            kitchenCode:first.kitchenCode || '',
+            requesterName:first.requesterName || '',
+            title:first.title || 'Synced Ticket',
+            dept:first.dept || '',
+            subcat:first.subcat || '',
+            priority:first.priority || 'Low',
+            status:first.status || 'Open',
+            attenderId:first.attenderId || null,
+            otp:first.otp || genOTP(),
+            timeline:[],
+          };
+          tickets.unshift(ticket);
+        }
+        bucket.forEach(row=>applySheetRowToTicket(ticket, row));
+      });
+      sheetSyncConfig.lastPullAt = now();
+      sheetSyncConfig.lastError = '';
+      saveSheetSyncConfig();
+      buildNav();
+      if(currentView) renderView(currentView);
+    }
+  }catch(err){
+    sheetSyncConfig.lastError = err?.message || 'Pull failed';
+    saveSheetSyncConfig();
+  }
+}
+function restartSheetSyncPolling(){
+  if(sheetSyncTimer) clearInterval(sheetSyncTimer);
+  sheetSyncTimer = null;
+  if(isSheetSyncConfigured() && sheetSyncConfig.pullUrl){
+    sheetSyncTimer = setInterval(()=>pullSheetSync(), Math.max(5000, sheetSyncConfig.pollInterval||15000));
+  }
+}
+function refreshSheetSyncPanel(){
+  const status = document.getElementById('sheet-sync-status');
+  const detail = document.getElementById('sheet-sync-detail');
+  const last = document.getElementById('sheet-sync-last');
+  const dashboardStatus = document.getElementById('sheet-sync-dashboard-status');
+  if(status){
+    status.innerHTML = sheetSyncConfig.enabled
+      ? `<span class="badge b-approved">Enabled</span>`
+      : `<span class="badge b-hold">Disabled</span>`;
+  }
+  if(detail){
+    detail.textContent = `Sheet: ${sheetSyncConfig.spreadsheetId || 'not set'} · Tab: ${sheetSyncConfig.sheetTab || 'Master data'} · Push: ${sheetSyncConfig.pushUrl ? 'configured' : 'not set'} · Pull: ${sheetSyncConfig.pullUrl ? 'configured' : 'not set'} · Poll: ${(sheetSyncConfig.pollInterval||15000)/1000}s`;
+  }
+  if(last){
+    last.textContent = [
+      sheetSyncConfig.lastPushAt ? `Last push ${sheetSyncConfig.lastPushAt}` : '',
+      sheetSyncConfig.lastPullAt ? `Last pull ${sheetSyncConfig.lastPullAt}` : '',
+      sheetSyncConfig.lastError ? `Error: ${sheetSyncConfig.lastError}` : ''
+    ].filter(Boolean).join(' · ') || 'No sync activity yet';
+  }
+  if(dashboardStatus){
+    dashboardStatus.textContent = [
+      sheetSyncConfig.enabled ? 'Enabled' : 'Disabled',
+      sheetSyncConfig.spreadsheetId ? 'sheet linked' : 'sheet not set',
+      sheetSyncConfig.sheetTab ? `tab: ${sheetSyncConfig.sheetTab}` : '',
+      sheetSyncConfig.pushUrl ? 'push ready' : 'push not set',
+      sheetSyncConfig.pullUrl ? 'pull ready' : 'pull not set',
+      sheetSyncConfig.lastError ? `error: ${sheetSyncConfig.lastError}` : ''
+    ].filter(Boolean).join(' · ');
+  }
+}
+function openSheetSyncModal(){
+  if(!['supervisor','manager'].includes(currentUser?.role)){
+    toast('Only RM supervisor or manager can manage sheet sync','red');
+    return;
+  }
+  document.getElementById('sheet-push-url').value = sheetSyncConfig.pushUrl || '';
+  document.getElementById('sheet-pull-url').value = sheetSyncConfig.pullUrl || '';
+  document.getElementById('sheet-id').value = sheetSyncConfig.spreadsheetId || '';
+  document.getElementById('sheet-tab').value = sheetSyncConfig.sheetTab || 'Master data';
+  document.getElementById('sheet-poll-interval').value = sheetSyncConfig.pollInterval || 15000;
+  document.getElementById('sheet-sync-enabled').checked = !!sheetSyncConfig.enabled;
+  refreshSheetSyncPanel();
+  openModal('modal-sheet-sync');
+}
+function saveSheetSyncSettings(){
+  const spreadsheetId = document.getElementById('sheet-id').value.trim();
+  const sheetTab = document.getElementById('sheet-tab').value.trim() || 'Master data';
+  const pushUrl = document.getElementById('sheet-push-url').value.trim();
+  const pullUrl = document.getElementById('sheet-pull-url').value.trim();
+  const enabled = document.getElementById('sheet-sync-enabled').checked;
+  const pollInterval = Math.max(5000, parseInt(document.getElementById('sheet-poll-interval').value,10)||15000);
+  sheetSyncConfig = {
+    ...sheetSyncConfig,
+    enabled,
+    spreadsheetId,
+    sheetTab,
+    pushUrl,
+    pullUrl,
+    pollInterval,
+  };
+  saveSheetSyncConfig();
+  toast('Google Sheet sync settings saved','green');
+  refreshSheetSyncPanel();
+}
+function testSheetPush(){
+  if(!sheetSyncConfig.pushUrl){
+    toast('Add a push URL first','red');
+    return;
+  }
+  const sample = tickets[0] || {id:'sample', date: now(), title:'Sample'};
+  queueSheetSync(sample,'Sync Test','Manual test from RMENGINE',{geoLocation:'', proofDocs:''});
+  toast('Test sync queued','green');
+}
+function sheetSyncTick(){
+  if(isSheetSyncConfigured()){
+    flushSheetSyncQueue();
+    if(sheetSyncConfig.pullUrl) pullSheetSync();
+  }
 }
 function getAttenderById(attenderId){
   return ATTENDERS.find(a=>a.id===attenderId)||null;
@@ -1209,6 +1489,8 @@ function doLogin(){
 function logout(){
   localStorage.removeItem('rmUser');
   currentUser=null; activeTicketId=null;
+  if(sheetSyncTimer) clearInterval(sheetSyncTimer);
+  sheetSyncTimer = null;
   toggleDrawer(false);
   document.getElementById('screen-login').classList.add('active');
   document.getElementById('screen-app').classList.remove('active');
@@ -1232,6 +1514,8 @@ function initApp(){
 
   buildNav();
   navigateTo('dashboard');
+  restartSheetSyncPolling();
+  sheetSyncTick();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1280,7 +1564,6 @@ function buildNav(){
   });
   syncSidebarSummary();
 }
-
 function getBadgeCount(type){
   if(type==='open') return tickets.filter(t=>t.status==='Open').length;
   if(type==='unassigned') return tickets.filter(t=>(!t.attenderId||t.status==='Rejected')&&t.status!=='Closed').length;
@@ -1288,7 +1571,6 @@ function getBadgeCount(type){
   if(type==='active') return tickets.filter(t=>t.attenderId===currentUser.attenderId&&!['Closed','Rejected'].includes(t.status)).length;
   return 0;
 }
-
 function navigateTo(view){
   currentView = view;
   toggleDrawer(false);
@@ -1325,6 +1607,7 @@ function renderView(v){
   else if(v==='history') mc.innerHTML=renderJobHistory();
   else if(v==='profile') mc.innerHTML=renderAttenderProfile();
   else mc.innerHTML=`<div class="empty-state"><div class="ei">🚧</div><p>Coming soon</p></div>`;
+  refreshSheetSyncPanel();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1389,6 +1672,16 @@ function renderSupervisorDashboard(){
     <div class="stat-card" style="--c:var(--purple);cursor:pointer" onclick="setSupervisorDashboardFocus('inprog')"><div class="stat-label">In Progress</div><div class="stat-val">${inprog}</div><div class="stat-desc">Attender active</div></div>
     <div class="stat-card" style="--c:var(--accent);cursor:pointer" onclick="setSupervisorDashboardFocus('finance')"><div class="stat-label">Finance Queue</div><div class="stat-val">${finpend}</div><div class="stat-desc">Pending review</div></div>
   </div>
+  <div class="card" style="margin-top:14px;margin-bottom:14px">
+    <div class="card-header">
+      <h2>📊 Google Sheet Sync</h2>
+      <button class="btn btn-outline btn-sm" onclick="openSheetSyncModal()">Configure</button>
+    </div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.6" id="sheet-sync-dashboard-copy">
+      Sync each ticket event to a Google Sheet with status, timeline step, geo location, and proof file names.
+      <div style="margin-top:8px;font-family:var(--mono);font-size:12px" id="sheet-sync-dashboard-status"></div>
+    </div>
+  </div>
   <div class="card">
     <div class="card-header">
       <h2>⚡ ${focusTitle}</h2>
@@ -1402,7 +1695,6 @@ function renderAssignQueue(){
   const q=tickets.filter(t=>(!t.attenderId||t.status==='Rejected')&&!['Closed'].includes(t.status));
   return `<div class="card"><div class="card-header"><h2>Assignment Queue</h2><span style="font-size:12px;color:var(--muted);font-family:var(--mono)">${q.length} unassigned</span></div>${renderTicketTable(q,false,true,true)}</div>`;
 }
-
 function renderAllTickets(){
   const attenderOptions = ATTENDERS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
   return `
@@ -1454,6 +1746,16 @@ function renderManagerDashboard(){
     <div class="stat-card" style="--c:var(--green)"><div class="stat-label">Closed</div><div class="stat-val">${closed}</div><div class="stat-desc">Resolved</div></div>
     <div class="stat-card" style="--c:var(--accent)"><div class="stat-label">Total Spend</div><div class="stat-val" style="font-size:18px;margin-top:8px">₹${totalSpend.toLocaleString('en-IN')}</div><div class="stat-desc">Invoiced & closed</div></div>
     <div class="stat-card" style="--c:var(--red)"><div class="stat-label">Critical Open</div><div class="stat-val">${critical}</div><div class="stat-desc">High business impact</div></div>
+  </div>
+  <div class="card" style="margin-top:14px;margin-bottom:14px">
+    <div class="card-header">
+      <h2>📊 Google Sheet Sync</h2>
+      <button class="btn btn-outline btn-sm" onclick="openSheetSyncModal()">Configure</button>
+    </div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.6" id="sheet-sync-dashboard-copy">
+      Keep spreadsheet history aligned with ticket status, timeline, geo location, and proof records.
+      <div style="margin-top:8px;font-family:var(--mono);font-size:12px" id="sheet-sync-dashboard-status"></div>
+    </div>
   </div>
   ${renderApprovals()}`;
 }
@@ -1766,6 +2068,7 @@ function openDetail(id){
     {k:'Attender',v:att?`<span style="font-weight:600">${att.name}</span>`:'Unassigned'},
     {k:'Transfer',v:t.transferAmount?`<span class="amount-pill" style="color:var(--cyan)">${fmtAmt(t.transferAmount)}</span>`:'None'},
     {k:'Purchase Spend',v:`<span class="amount-pill" style="color:var(--cyan)">${fmtAmt(getTicketPurchaseTotal(t))}</span>`},
+    {k:'Proof Docs',v:getTicketProofSummary(t)?`<span style="font-size:12px;line-height:1.5">${getTicketProofSummary(t)}</span>`:'None'},
   ];
 
   let body=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)">
@@ -2504,6 +2807,11 @@ function submitTicket(){
   }
 
   tickets.unshift(t);
+  queueSheetSync(t,'Ticket Created',`Raised by ${name}${autoAttender?` · Auto-assigned to ${autoAttender.name}`:''}`,{
+    geoLocation:'',
+    proofDocs:'',
+    purchaseTotal:0
+  });
 
   closeModal('modal-new-ticket');
   toast(`✅ Ticket ${t.id} submitted!`,'green');
@@ -2517,6 +2825,8 @@ function addTimeline(t,step,note=''){
   const existing=t.timeline.find(s=>s.step===step);
   if(existing){existing.done=true;existing.time=now();existing.note=note;}
   else t.timeline.push({step,done:true,time:now(),note});
+  queueSheetSync(t,step,note);
+  refreshSheetSyncPanel();
 }
 
 function openModal(id){ document.getElementById(id)?.classList.add('open'); }
@@ -2554,6 +2864,7 @@ function boot(){
   ATTENDERS.forEach(a=>{ const o=document.createElement('option');o.value=a.id;o.textContent=`${a.name} (${a.id})`;ad.appendChild(o); });
 
   loadAttenderMappings();
+  loadSheetSyncConfig();
   seedData();
 
   // Auto-login if stored
@@ -2564,6 +2875,5 @@ function boot(){
 window.addEventListener('DOMContentLoaded',boot);
 window.addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElementById('screen-login').classList.contains('active')) doLogin(); });
 </script>
-
-
-</body><div id="codex-browser-sidebar-comments-root" style="position: fixed; inset: 0px; pointer-events: none; z-index: 2147483000;"></div></html>
+</body>
+</html>
